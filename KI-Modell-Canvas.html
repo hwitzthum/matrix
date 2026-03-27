@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KI-Modell-Canvas | CAS AI Hands-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,500;9..144,0,700;9..144,1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #182038;
+      --navy-mid:  #253352;
+      --navy-lt:   #344066;
+      --accent:    #E8501A;
+      --paper:     #F7F5EF;
+      --white:     #FFFFFF;
+      --border:    #D6D2C8;
+      --muted:     #7A7E93;
+      --text:      #18202E;
+      --c1:        #3A548C;   /* Use Cases – blue */
+      --c1-lt:     #EEF2FF;
+      --c2:        #1F6B47;   /* Modelle – green */
+      --c2-lt:     #E6F4EE;
+      --c3:        #7A3FA0;   /* Datenschutz – purple */
+      --c3-lt:     #F3EDFB;
+      --c4:        #C07A10;   /* Nächster Schritt – gold */
+      --c4-lt:     #FDF5E4;
+      --smart:     #B03020;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #ECEAE3;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── TOOLBAR ─────────────────────────── */
+    .toolbar {
+      max-width: 960px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 12px; }
+    .toolbar-logo {
+      background: var(--navy);
+      color: white;
+      font-family: 'Fraunces', serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .toolbar-tag {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .btn-print {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-print:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+    /* ── CANVAS CARD ─────────────────────── */
+    .canvas-card {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 40px rgba(24,32,56,0.13);
+      overflow: hidden;
+    }
+
+    /* ── CANVAS HEADER ───────────────────── */
+    .canvas-header {
+      background: var(--navy);
+      padding: 26px 32px 22px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .canvas-header-left {}
+    .canvas-eyebrow {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .canvas-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      font-weight: 500;
+      color: white;
+      line-height: 1.2;
+    }
+    .canvas-subtitle {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 5px;
+      font-weight: 300;
+    }
+    .canvas-meta {
+      display: flex;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      font-weight: 600;
+    }
+    .meta-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      padding: 5px 10px;
+      width: 160px;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .meta-input::placeholder { color: rgba(255,255,255,0.25); }
+    .meta-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.14); }
+
+    /* ── STEPS BAR ───────────────────────── */
+    .steps-bar {
+      background: var(--navy-mid);
+      padding: 10px 32px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+    }
+    .step-pill.s1 { background: rgba(58,84,140,0.5); color: #AAC0E8; }
+    .step-pill.s2 { background: rgba(31,107,71,0.5); color: #A0D4B8; }
+    .step-pill.s3 { background: rgba(176,48,32,0.4); color: #F0A898; }
+    .step-pill-num {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700;
+    }
+    .steps-sep { color: rgba(255,255,255,0.18); font-size: 0.75rem; }
+
+    /* ── CANVAS BODY ─────────────────────── */
+    .canvas-body { padding: 24px 28px 28px; }
+
+    /* ── SECTION LABEL ───────────────────── */
+    .section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── 4-QUADRANT GRID ─────────────────── */
+    .quadrant-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .quadrant {
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.15s;
+    }
+    .quadrant:focus-within { box-shadow: 0 0 0 3px rgba(24,32,56,0.1); }
+
+    .q-header {
+      padding: 12px 16px 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .q-num {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .q-title-group {}
+    .q-title {
+      font-weight: 700;
+      font-size: 0.88rem;
+      line-height: 1.2;
+    }
+    .q-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 300;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .q-body { padding: 0 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+    textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.84rem;
+      color: var(--text);
+      padding: 10px 12px;
+      resize: none;
+      outline: none;
+      background: var(--paper);
+      line-height: 1.5;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    textarea::placeholder { color: #B0AEAD; font-style: italic; font-weight: 300; }
+    textarea:focus { border-color: #8899AA; background: white; }
+
+    /* Quadrant colors */
+    .q1 .q-header { background: var(--c1-lt); }
+    .q1 .q-num   { background: var(--c1); }
+    .q1 .q-title { color: var(--c1); }
+    .q1 textarea:focus { border-color: var(--c1); }
+
+    .q2 .q-header { background: var(--c2-lt); }
+    .q2 .q-num   { background: var(--c2); }
+    .q2 .q-title { color: var(--c2); }
+    .q2 textarea:focus { border-color: var(--c2); }
+
+    .q3 .q-header { background: var(--c3-lt); }
+    .q3 .q-num   { background: var(--c3); }
+    .q3 .q-title { color: var(--c3); }
+    .q3 textarea:focus { border-color: var(--c3); }
+
+    .q4 .q-header { background: var(--c4-lt); }
+    .q4 .q-num   { background: var(--c4); }
+    .q4 .q-title { color: var(--c4); }
+    .q4 textarea:focus { border-color: var(--c4); }
+
+    /* ── SMART SECTION ───────────────────── */
+    .smart-section {
+      background: var(--navy);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .smart-header {
+      padding: 14px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .smart-title-group {}
+    .smart-eyebrow {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.35);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .smart-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: white;
+    }
+    .smart-badge {
+      display: flex;
+      gap: 4px;
+    }
+    .smart-letter {
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700;
+      color: rgba(255,255,255,0.6);
+    }
+    .smart-body {
+      padding: 0 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .smart-item {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .smart-item-header {
+      padding: 8px 12px 6px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .smart-num {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700;
+      color: white; flex-shrink: 0;
+    }
+    .smart-item-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .smart-item-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+    .smart-row { display: flex; flex-direction: column; gap: 3px; }
+    .smart-row-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.3);
+    }
+    .smart-input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .smart-input::placeholder { color: rgba(255,255,255,0.2); font-style: italic; font-weight: 300; }
+    .smart-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+    .smart-textarea {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      width: 100%;
+      resize: none;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      line-height: 1.45;
+    }
+    .smart-textarea::placeholder { color: rgba(255,255,255,0.2); font-style: italic; font-weight: 300; }
+    .smart-textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+
+    /* ── REFLECTION STRIP ────────────────── */
+    .reflection-strip {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .reflection-header {
+      background: var(--paper);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .reflection-icon {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .reflection-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--navy);
+    }
+    .reflection-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    .reflection-body {
+      padding: 12px 16px;
+    }
+    textarea.reflection-ta {
+      background: white;
+      height: 72px;
+    }
+
+    /* ── FOOTER ──────────────────────────── */
+    .canvas-footer {
+      background: var(--paper);
+      border-top: 1px solid var(--border);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    .footer-steps {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-step {
+      font-size: 0.68rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .footer-step-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+
+    /* ── PRINT STYLES ────────────────────── */
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar { display: none; }
+      .canvas-card { box-shadow: none; border-radius: 0; max-width: 100%; }
+      textarea, .smart-input, .smart-textarea, .meta-input {
+        border-color: #CCCCCC !important;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .q-header, .smart-section, .smart-item-header, .canvas-header,
+      .steps-bar, .canvas-footer, .reflection-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .quadrant-grid { gap: 10px; }
+      .smart-body { gap: 8px; }
+      @page { margin: 12mm; size: A4 landscape; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar no-print">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">CAS AI Hands-On</div>
+    <div class="toolbar-tag">Block 9 · KI-Modell-Canvas</div>
+  </div>
+  <button class="btn-print" onclick="window.print()">
+    🖨️ Drucken / Als PDF speichern
+  </button>
+</div>
+
+<!-- CANVAS CARD -->
+<div class="canvas-card">
+
+  <!-- HEADER -->
+  <div class="canvas-header">
+    <div class="canvas-header-left">
+      <div class="canvas-eyebrow">Block 9 · 15:45–16:30 · Hands-On</div>
+      <div class="canvas-title">KI-Modell-Canvas</div>
+      <div class="canvas-subtitle">Vom Wissen zum konkreten Plan — persönliche Roadmap für die nächsten 4 Wochen</div>
+    </div>
+    <div class="canvas-meta">
+      <div class="meta-field">
+        <div class="meta-label">Name</div>
+        <input class="meta-input" type="text" placeholder="Dein Name">
+      </div>
+      <div class="meta-field">
+        <div class="meta-label">Team / Gruppe</div>
+        <input class="meta-input" type="text" placeholder="Gruppe 1…">
+      </div>
+      <div class="meta-field">
+        <div class="meta-label">Datum</div>
+        <input class="meta-input" type="text" placeholder="10. April 2026">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step-pill s1"><span class="step-pill-num">1</span> Canvas ausfüllen (10 min)</div>
+    <div class="steps-sep">→</div>
+    <div class="step-pill s1"><span class="step-pill-num">2</span> Impact-Team-Review (15 min)</div>
+    <div class="steps-sep">→</div>
+    <div class="step-pill s2"><span class="step-pill-num">3</span> SMART-Massnahmen (10 min)</div>
+    <div class="steps-sep">→</div>
+    <div class="step-pill s3"><span class="step-pill-num">4</span> Kurzpräsentation Plenum (10 min)</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="canvas-body">
+
+    <!-- STEP 1 LABEL -->
+    <div class="section-label">Schritt 1 · KI-Modell-Canvas — 4 Felder ausfüllen</div>
+
+    <!-- 4 QUADRANTS -->
+    <div class="quadrant-grid">
+
+      <!-- Q1 -->
+      <div class="quadrant q1">
+        <div class="q-header">
+          <div class="q-num">1</div>
+          <div class="q-title-group">
+            <div class="q-title">Meine Use Cases</div>
+            <div class="q-hint">Welche konkreten Aufgaben aus meinem Berufsalltag kann ich mit KI unterstützen?</div>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea rows="3" placeholder="Use Case 1: z.B. E-Mails zusammenfassen und priorisieren…"></textarea>
+          <textarea rows="3" placeholder="Use Case 2: z.B. Protokolle aus Besprechungen automatisch erstellen…"></textarea>
+          <textarea rows="2" placeholder="Use Case 3 (optional): …"></textarea>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quadrant q2">
+        <div class="q-header">
+          <div class="q-num">2</div>
+          <div class="q-title-group">
+            <div class="q-title">Empfohlene Modelle</div>
+            <div class="q-hint">Welches Modell passt zu jedem Use Case? (LLM / SLM / Reasoning / Open-Source)</div>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea rows="3" placeholder="Use Case 1 → Modell: z.B. Claude 4 Sonnet (Cloud) — Begründung: hohe Sprachkompetenz, DPA vorhanden…"></textarea>
+          <textarea rows="3" placeholder="Use Case 2 → Modell: z.B. Phi-4-mini lokal (Ollama) — Begründung: Datenschutz, kein Cloud-Transfer…"></textarea>
+          <textarea rows="2" placeholder="Use Case 3 → Modell: …"></textarea>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quadrant q3">
+        <div class="q-header">
+          <div class="q-num">3</div>
+          <div class="q-title-group">
+            <div class="q-title">Datenschutz-Setup</div>
+            <div class="q-hint">Wie stelle ich sicher, dass mein Einsatz DSGVO-konform ist?</div>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea rows="3" placeholder="Datensensitivität meiner Use Cases: z.B. Use Case 1 = niedrig (keine Personendaten) / Use Case 2 = hoch (Mitarbeiterdaten)…"></textarea>
+          <textarea rows="3" placeholder="Schutzmassnahmen: z.B. Anonymisierung vor Prompt / DPA mit Anbieter prüfen / On-Premise für Use Case 2…"></textarea>
+          <textarea rows="2" placeholder="Offene Fragen / Klärungsbedarf: …"></textarea>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quadrant q4">
+        <div class="q-header">
+          <div class="q-num">4</div>
+          <div class="q-title-group">
+            <div class="q-title">Nächster Schritt</div>
+            <div class="q-hint">Was ist der eine konkrete erste Schritt, den ich in dieser Woche angehe?</div>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea rows="3" placeholder="Mein erster Schritt (diese Woche): z.B. Ollama auf meinem Laptop installieren und Phi-4-mini testen…"></textarea>
+          <textarea rows="3" placeholder="Was brauche ich dafür? (Tools, Personen, Budget, Genehmigungen): …"></textarea>
+          <textarea rows="2" placeholder="Wer kann mich dabei unterstützen? …"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /quadrant-grid -->
+
+    <!-- SMART SECTION -->
+    <div class="section-label">Schritt 3 · 3 konkrete Massnahmen — SMART-Format (nächste 4 Wochen)</div>
+
+    <div class="smart-section">
+      <div class="smart-header">
+        <div class="smart-title-group">
+          <div class="smart-eyebrow">SMART = Spezifisch · Messbar · Attraktiv · Realistisch · Terminiert</div>
+          <div class="smart-title">Meine 3 Massnahmen für die nächsten 4 Wochen</div>
+        </div>
+        <div class="smart-badge">
+          <div class="smart-letter">S</div>
+          <div class="smart-letter">M</div>
+          <div class="smart-letter">A</div>
+          <div class="smart-letter">R</div>
+          <div class="smart-letter">T</div>
+        </div>
+      </div>
+      <div class="smart-body">
+
+        <div class="smart-item">
+          <div class="smart-item-header">
+            <div class="smart-num">1</div>
+            <div class="smart-item-label">Massnahme 1</div>
+          </div>
+          <div class="smart-item-body">
+            <div class="smart-row">
+              <div class="smart-row-label">Was genau? (Spezifisch)</div>
+              <textarea class="smart-textarea" rows="2" placeholder="Ich werde…"></textarea>
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Wie messe ich Erfolg?</div>
+              <input class="smart-input" type="text" placeholder="Erfolgskriterium…">
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Bis wann? (Datum)</div>
+              <input class="smart-input" type="text" placeholder="z.B. 24. April 2026">
+            </div>
+          </div>
+        </div>
+
+        <div class="smart-item">
+          <div class="smart-item-header">
+            <div class="smart-num">2</div>
+            <div class="smart-item-label">Massnahme 2</div>
+          </div>
+          <div class="smart-item-body">
+            <div class="smart-row">
+              <div class="smart-row-label">Was genau? (Spezifisch)</div>
+              <textarea class="smart-textarea" rows="2" placeholder="Ich werde…"></textarea>
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Wie messe ich Erfolg?</div>
+              <input class="smart-input" type="text" placeholder="Erfolgskriterium…">
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Bis wann? (Datum)</div>
+              <input class="smart-input" type="text" placeholder="z.B. 1. Mai 2026">
+            </div>
+          </div>
+        </div>
+
+        <div class="smart-item">
+          <div class="smart-item-header">
+            <div class="smart-num">3</div>
+            <div class="smart-item-label">Massnahme 3</div>
+          </div>
+          <div class="smart-item-body">
+            <div class="smart-row">
+              <div class="smart-row-label">Was genau? (Spezifisch)</div>
+              <textarea class="smart-textarea" rows="2" placeholder="Ich werde…"></textarea>
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Wie messe ich Erfolg?</div>
+              <input class="smart-input" type="text" placeholder="Erfolgskriterium…">
+            </div>
+            <div class="smart-row">
+              <div class="smart-row-label">Bis wann? (Datum)</div>
+              <input class="smart-input" type="text" placeholder="z.B. 8. Mai 2026">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REFLECTION -->
+    <div class="section-label">Schritt 2 · Impact-Team-Review — Feedback notieren</div>
+    <div class="reflection-strip">
+      <div class="reflection-header">
+        <div class="reflection-icon">💬</div>
+        <div>
+          <div class="reflection-title">Feedback vom Team &amp; Lücken</div>
+          <div class="reflection-sub">Was haben meine Kolleg:innen angemerkt? Was will ich anpassen?</div>
+        </div>
+      </div>
+      <div class="reflection-body">
+        <textarea class="reflection-ta" placeholder="Feedback von [Name]: … | Ich passe folgendes an meinem Canvas an: …"></textarea>
+      </div>
+    </div>
+
+  </div><!-- /canvas-body -->
+
+  <!-- FOOTER -->
+  <div class="canvas-footer">
+    <div class="footer-left">CAS AI Hands-On · 10. April 2026 · Luzern</div>
+    <div class="footer-steps">
+      <div class="footer-step"><span class="footer-step-dot" style="background:var(--c1)"></span> Use Cases</div>
+      <div class="footer-step"><span class="footer-step-dot" style="background:var(--c2)"></span> Modelle</div>
+      <div class="footer-step"><span class="footer-step-dot" style="background:var(--c3)"></span> Datenschutz</div>
+      <div class="footer-step"><span class="footer-step-dot" style="background:var(--c4)"></span> Nächster Schritt</div>
+      <div class="footer-step"><span class="footer-step-dot" style="background:var(--accent)"></span> SMART-Massnahmen</div>
+    </div>
+  </div>
+
+</div><!-- /canvas-card -->
+
+</body>
+</html>
