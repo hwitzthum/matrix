@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutz-Audit | CAS AI Hands-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,500;9..144,0,700;9..144,1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:     #182038;
+      --navy-mid: #253352;
+      --navy-lt:  #344066;
+      --accent:   #E8501A;
+      --paper:    #F7F5EF;
+      --white:    #FFFFFF;
+      --border:   #D6D2C8;
+      --muted:    #7A7E93;
+      --text:     #18202E;
+      --red:      #C0392B;   --red-lt:    #FDECEA;
+      --amber:    #B8741A;   --amber-lt:  #FEF3E2;
+      --green:    #1F6B47;   --green-lt:  #E6F4EE;
+      --blue:     #3A548C;   --blue-lt:   #EEF2FF;
+      --purple:   #7A3FA0;   --purple-lt: #F3EDFB;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #E8E5DE;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+    }
+
+    /* ── TOOLBAR ──────────────────────── */
+    .toolbar {
+      max-width: 860px; margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 10px; }
+    .toolbar-logo {
+      background: var(--navy); color: white;
+      font-family: 'Fraunces', serif; font-size: 0.75rem; font-weight: 500;
+      padding: 5px 12px; border-radius: 6px;
+    }
+    .toolbar-tag { font-size: 0.72rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
+    .btn-print {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--navy); color: white; border: none;
+      padding: 9px 18px; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: background 0.15s, transform 0.15s;
+    }
+    .btn-print:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+    /* ── CARD ─────────────────────────── */
+    .card {
+      max-width: 860px; margin: 0 auto 16px;
+      background: var(--white); border-radius: 14px;
+      box-shadow: 0 3px 24px rgba(24,32,56,0.11);
+      overflow: hidden;
+    }
+
+    /* ── PAGE HEADER ──────────────────── */
+    .page-header {
+      background: var(--navy);
+      padding: 22px 28px 18px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    }
+    .ph-eyebrow {
+      font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.12em; color: rgba(255,255,255,0.38);
+      font-weight: 600; margin-bottom: 5px;
+    }
+    .ph-title {
+      font-family: 'Fraunces', serif; font-size: 1.45rem;
+      font-weight: 500; color: white; line-height: 1.2;
+    }
+    .ph-sub { font-size: 0.8rem; color: rgba(255,255,255,0.42); font-weight: 300; margin-top: 4px; }
+    .ph-meta { display: flex; gap: 10px; flex-shrink: 0; }
+    .meta-field { display: flex; flex-direction: column; gap: 3px; }
+    .meta-lbl {
+      font-size: 0.6rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: rgba(255,255,255,0.32); font-weight: 600;
+    }
+    .meta-inp {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 6px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem; padding: 5px 10px; width: 148px; outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .meta-inp::placeholder { color: rgba(255,255,255,0.22); }
+    .meta-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.14); }
+
+    /* ── STEPS BAR ────────────────────── */
+    .steps-bar {
+      background: var(--navy-mid); padding: 9px 28px;
+      display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+    }
+    .step-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 11px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 600;
+    }
+    .sp1 { background: rgba(192,57,43,0.35); color: #F5B0A8; }
+    .sp2 { background: rgba(31,107,71,0.35); color: #90CFA8; }
+    .sp3 { background: rgba(58,84,140,0.35); color: #A8C0E8; }
+    .sp-num {
+      width: 15px; height: 15px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.58rem; font-weight: 700;
+    }
+    .steps-arr { color: rgba(255,255,255,0.18); font-size: 0.72rem; }
+
+    /* ── SECTION ──────────────────────── */
+    .section { padding: 20px 26px 22px; }
+    .section + .section { border-top: 1px solid var(--border); }
+
+    .sec-label {
+      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .sec-title {
+      font-family: 'Fraunces', serif; font-size: 1.05rem;
+      font-weight: 500; color: var(--navy); margin-bottom: 4px;
+    }
+    .sec-desc { font-size: 0.8rem; color: var(--muted); font-weight: 300; margin-bottom: 16px; line-height: 1.5; }
+
+    /* ── CHECKLISTE ───────────────────── */
+    .check-grid { display: grid; gap: 10px; }
+
+    .check-block {
+      border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .check-block-header {
+      padding: 9px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cbh-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.88rem; flex-shrink: 0;
+    }
+    .cbh-title { font-weight: 600; font-size: 0.87rem; }
+    .cbh-hint { font-size: 0.72rem; font-weight: 300; margin-top: 1px; }
+    .check-block-body { padding: 10px 14px 12px; background: var(--white); }
+
+    /* Sensitiv check items */
+    .sens-row {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+    }
+    .sens-row:last-child { border-bottom: none; }
+    .sens-left { display: flex; align-items: flex-start; gap: 8px; }
+    .sens-check-box {
+      width: 18px; height: 18px; border: 2px solid var(--border);
+      border-radius: 4px; flex-shrink: 0; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+      margin-top: 1px;
+    }
+    .sens-check-box.checked { border-color: var(--red); background: var(--red); }
+    .sens-check-box.checked::after { content: '✓'; color: white; font-size: 0.65rem; font-weight: 700; }
+    .sens-text { font-size: 0.82rem; color: var(--text); line-height: 1.4; }
+    .sens-text small { display: block; font-size: 0.72rem; color: var(--muted); font-weight: 300; }
+    .sens-badge {
+      font-size: 0.62rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; white-space: nowrap; text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-red    { background: var(--red-lt);    color: var(--red); }
+    .badge-amber  { background: var(--amber-lt);  color: var(--amber); }
+    .badge-green  { background: var(--green-lt);  color: var(--green); }
+
+    /* ── INPUT FIELDS ─────────────────── */
+    textarea, input[type=text] {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.83rem; color: var(--text);
+      padding: 8px 11px; outline: none; background: var(--paper);
+      line-height: 1.5; resize: none; transition: border-color 0.15s, background 0.15s;
+    }
+    textarea::placeholder, input[type=text]::placeholder { color: #C0BEBB; font-style: italic; font-weight: 300; }
+    textarea:focus, input[type=text]:focus { border-color: #8899AA; background: white; }
+
+    .field-label {
+      font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.08em; font-weight: 600; color: var(--muted); margin-bottom: 4px;
+    }
+    .field-group { margin-bottom: 10px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    /* Two-column fields */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── DSGVO ARTICLES ───────────────── */
+    .art-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .art-card {
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .art-card:hover { border-color: var(--blue); background: var(--blue-lt); }
+    .art-card.selected { border-color: var(--navy); background: var(--navy); }
+    .art-card.selected .art-num { color: rgba(255,255,255,0.5); }
+    .art-card.selected .art-name { color: white; }
+    .art-card.selected .art-desc { color: rgba(255,255,255,0.5); }
+    .art-num { font-size: 0.65rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+    .art-name { font-size: 0.82rem; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+    .art-desc { font-size: 0.71rem; color: var(--muted); font-weight: 300; line-height: 1.35; }
+
+    /* ── BEWERTUNGSMATRIX ─────────────── */
+    .matrix-table { width: 100%; border-collapse: collapse; }
+    .matrix-table th, .matrix-table td {
+      padding: 10px 12px; font-size: 0.82rem; vertical-align: middle;
+    }
+    .matrix-table thead th {
+      font-weight: 700; font-size: 0.8rem; text-align: center;
+      padding: 11px 12px;
+    }
+    .matrix-table tbody tr { border-bottom: 1px solid var(--border); }
+    .matrix-table tbody tr:last-child { border-bottom: none; }
+    .matrix-table tbody td:first-child {
+      font-weight: 600; font-size: 0.82rem; color: var(--navy);
+      width: 22%; padding-left: 0;
+    }
+    .matrix-table tbody td.hint-cell {
+      font-size: 0.73rem; color: var(--muted); font-weight: 300;
+      line-height: 1.35; width: 20%;
+    }
+
+    .th-cloud  { background: var(--blue-lt);   color: var(--blue);   border-radius: 8px 8px 0 0; }
+    .th-onprem { background: var(--green-lt);  color: var(--green);  border-radius: 8px 8px 0 0; }
+    .th-hybrid { background: var(--purple-lt); color: var(--purple); border-radius: 8px 8px 0 0; }
+
+    .rating-cell { text-align: center; }
+    .rating-group { display: flex; justify-content: center; gap: 5px; }
+    .star {
+      width: 26px; height: 26px; border-radius: 5px;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem; cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+      color: var(--border);
+    }
+    .star:hover { border-color: #B8941A; background: #FEF3E2; color: #B8741A; }
+    .star.on.cloud  { border-color: var(--blue);   background: var(--blue-lt);   color: var(--blue); }
+    .star.on.onprem { border-color: var(--green);  background: var(--green-lt);  color: var(--green); }
+    .star.on.hybrid { border-color: var(--purple); background: var(--purple-lt); color: var(--purple); }
+
+    .verdict-cell { text-align: center; }
+    .verdict-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 10px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--paper);
+      font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; color: var(--muted);
+    }
+    .verdict-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .verdict-btn.active.cloud  { background: var(--blue);   border-color: var(--blue);   color: white; }
+    .verdict-btn.active.onprem { background: var(--green);  border-color: var(--green);  color: white; }
+    .verdict-btn.active.hybrid { background: var(--purple); border-color: var(--purple); color: white; }
+
+    .matrix-note-row td { padding: 8px 0 0; }
+
+    /* ── ENTSCHEID BOX ────────────────── */
+    .decision-box {
+      border: 2px solid var(--navy); border-radius: 10px; overflow: hidden; margin-top: 14px;
+    }
+    .decision-box-header {
+      background: var(--navy); padding: 8px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .decision-box-header span { color: white; font-weight: 600; font-size: 0.85rem; }
+    .decision-box-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── MEMO ─────────────────────────── */
+    .memo-section {
+      background: var(--navy); border-radius: 12px; overflow: hidden;
+    }
+    .memo-header {
+      padding: 14px 20px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .memo-title {
+      font-family: 'Fraunces', serif; font-size: 1.05rem;
+      font-weight: 500; color: white;
+    }
+    .memo-sub { font-size: 0.75rem; color: rgba(255,255,255,0.38); margin-top: 2px; font-weight: 300; }
+    .memo-badge {
+      background: var(--accent); color: white;
+      font-size: 0.68rem; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .memo-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .memo-point {
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .memo-num {
+      width: 26px; height: 26px; border-radius: 7px; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: white; flex-shrink: 0; margin-top: 1px;
+    }
+    .memo-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .memo-field-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: rgba(255,255,255,0.3); }
+    .memo-inp {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.83rem; padding: 8px 12px; width: 100%; outline: none;
+      transition: border-color 0.15s, background 0.15s; resize: none;
+    }
+    .memo-inp::placeholder { color: rgba(255,255,255,0.2); font-style: italic; font-weight: 300; }
+    .memo-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+
+    /* ── FOOTER ───────────────────────── */
+    .page-footer {
+      max-width: 860px; margin: 16px auto 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.7rem; color: #999; padding: 0 4px;
+    }
+    .nav-links { display: flex; gap: 14px; }
+    .nav-link {
+      color: var(--navy); font-weight: 500; text-decoration: none;
+      font-size: 0.72rem; display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      background: var(--white); border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .nav-link:hover { background: var(--paper); }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar, .page-footer { display: none; }
+      .card { box-shadow: none; border-radius: 0; max-width: 100%; margin: 0; }
+      textarea, input[type=text], .meta-inp, .memo-inp {
+        border-color: #CCC !important; background: white !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .check-block-header, .page-header, .steps-bar, .memo-section,
+      .decision-box-header, .art-card.selected {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      @page { margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">CAS AI Hands-On</div>
+    <div class="toolbar-tag">Block 7 · Datenschutz-Audit</div>
+  </div>
+  <button class="btn-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+</div>
+
+<!-- CARD -->
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <div class="ph-eyebrow">Block 7 · 14:50–15:15 · Hands-On · Gruppenarbeit (3 Personen)</div>
+      <div class="ph-title">Datenschutz-Audit meines Use Case</div>
+      <div class="ph-sub">Eigenen Use Case auf Datenschutz prüfen und Betriebsstrategie festlegen</div>
+    </div>
+    <div class="ph-meta">
+      <div class="meta-field">
+        <div class="meta-lbl">Name</div>
+        <input class="meta-inp" type="text" placeholder="Dein Name">
+      </div>
+      <div class="meta-field">
+        <div class="meta-lbl">Gruppe</div>
+        <input class="meta-inp" type="text" placeholder="Gruppe 1 …">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step-pill sp1"><span class="sp-num">1</span> Datenschutz-Checkliste (10 min)</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp2"><span class="sp-num">2</span> Bewertungsmatrix &amp; Entscheid (10 min)</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp3"><span class="sp-num">3</span> Datenschutz-Memo (5 min)</div>
+  </div>
+
+  <!-- ══ STEP 1: CHECKLISTE ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 1 · Datenschutz-Checkliste</div>
+    <div class="sec-title">Welche Daten? Wie sensitiv? Welcher Rechtsrahmen?</div>
+    <div class="sec-desc">Beschreibe zuerst deinen Use Case, dann prüfe systematisch welche Daten involviert sind und was das für den Datenschutz bedeutet.</div>
+
+    <!-- Use Case -->
+    <div class="check-block" style="margin-bottom:12px;">
+      <div class="check-block-header" style="background:var(--paper);">
+        <div class="cbh-icon" style="background:var(--navy-lt);">📋</div>
+        <div>
+          <div class="cbh-title" style="color:var(--navy);">Mein Use Case</div>
+          <div class="cbh-hint" style="color:var(--muted);">Was soll die KI in meiner Organisation konkret tun?</div>
+        </div>
+      </div>
+      <div class="check-block-body">
+        <div class="field-group">
+          <div class="field-label">Beschreibung des Use Case</div>
+          <textarea rows="2" placeholder="z.B. Automatische Zusammenfassung von Kundengesprächen für den Verkauf …"></textarea>
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <div class="field-label">Abteilung / Bereich</div>
+            <input type="text" placeholder="z.B. Vertrieb, HR, Recht …">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Geplantes Modell / Tool</div>
+            <input type="text" placeholder="z.B. Claude API, Ollama lokal, GPT-5 …">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datentypen -->
+    <div class="check-block" style="margin-bottom:12px;">
+      <div class="check-block-header" style="background:var(--red-lt);">
+        <div class="cbh-icon" style="background:var(--red);">🔍</div>
+        <div>
+          <div class="cbh-title" style="color:var(--red);">A · Welche Daten werden verarbeitet?</div>
+          <div class="cbh-hint" style="color:#A04030;">Alle Datentypen ankreuzen, die im Prompt oder Kontext vorkommen können</div>
+        </div>
+      </div>
+      <div class="check-block-body">
+        <div class="check-grid">
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Personendaten (Name, E-Mail, Adresse)
+                <small>Art. 5 revDSG — Grundkategorie, nahezu immer vorhanden</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-amber">Mittel</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Gesundheitsdaten / medizinische Informationen
+                <small>Art. 5 lit. c revDSG — besonders schützenswerte Personendaten</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-red">Sehr hoch</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Mitarbeiterdaten (Leistung, Gehalt, HR-Daten)
+                <small>Art. 5 lit. c revDSG + Arbeitsrecht (Art. 328b OR)</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-red">Sehr hoch</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Finanz- und Buchhaltungsdaten
+                <small>Betriebs- und Steuergeheimnis (Art. 162 StGB)</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-red">Hoch</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Kundendaten / CRM-Daten
+                <small>Art. 6 revDSG — Bearbeitungsgrundsätze, Informationspflicht</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-amber">Mittel–Hoch</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Betriebsgeheimnisse / IP / Strategiedokumente
+                <small>Art. 162 StGB (Geschäftsgeheimnis) + UWG</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-red">Hoch</span>
+          </div>
+          <div class="sens-row" onclick="toggleCheck(this)">
+            <div class="sens-left">
+              <div class="sens-check-box"></div>
+              <div class="sens-text">Öffentlich zugängliche / anonymisierte Daten
+                <small>Keine besonderen Schutzpflichten nach revDSG</small>
+              </div>
+            </div>
+            <span class="sens-badge badge-green">Niedrig</span>
+          </div>
+          <div class="sens-row">
+            <div class="sens-left">
+              <div class="sens-check-box" style="cursor:default; border-style:dashed;"></div>
+              <div class="sens-text">
+                <input type="text" placeholder="Anderer Datentyp: …" style="background:transparent; border:none; border-bottom:1px solid var(--border); border-radius:0; padding:2px 0; font-style:italic;">
+              </div>
+            </div>
+            <span class="sens-badge badge-amber">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rechtsrahmen -->
+    <div class="check-block">
+      <div class="check-block-header" style="background:var(--blue-lt);">
+        <div class="cbh-icon" style="background:var(--blue);">⚖️</div>
+        <div>
+          <div class="cbh-title" style="color:var(--blue);">B · Relevanter Rechtsrahmen</div>
+          <div class="cbh-hint" style="color:#3A4878;">Primär: Schweizer revDSG — bei grenzüberschreitenden Daten zusätzlich EU-DSGVO</div>
+        </div>
+      </div>
+      <div class="check-block-body">
+
+        <!-- Swiss DSG label -->
+        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--blue);margin-bottom:7px;display:flex;align-items:center;gap:6px;">
+          🇨🇭 Schweizer Recht (primär anwendbar)
+          <span style="flex:1;height:1px;background:var(--blue-lt);display:block;"></span>
+        </div>
+        <div class="art-grid" id="art-grid" style="margin-bottom:12px;">
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 6 revDSG</div>
+            <div class="art-name">Bearbeitungsgrundsätze</div>
+            <div class="art-desc">Rechtmässigkeit, Treu und Glauben, Verhältnismässigkeit, Zweckbindung</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 5 lit. c revDSG</div>
+            <div class="art-name">Besonders schützenswerte Daten</div>
+            <div class="art-desc">Gesundheit, Biometrie, politische Ansichten, ethnische Herkunft — höchste Schutzstufe</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 9 revDSG</div>
+            <div class="art-name">Auftragsbearbeitung</div>
+            <div class="art-desc">Schriftlicher Vertrag (DPA) mit KI-Anbieter — Anbieter darf nur nach Weisung bearbeiten</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 16–17 revDSG</div>
+            <div class="art-name">Bekanntgabe ins Ausland</div>
+            <div class="art-desc">USA gilt nicht als «angemessenes Schutzniveau» — Standardvertragsklauseln oder Einwilligung nötig</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 7 revDSG</div>
+            <div class="art-name">Privacy by Design</div>
+            <div class="art-desc">Datenschutz technisch einbauen (by default: datenschutzfreundlichste Voreinstellung)</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)">
+            <div class="art-num">Art. 22 revDSG</div>
+            <div class="art-name">Datenschutz-Folgenabschätzung</div>
+            <div class="art-desc">DSFA bei hohem Risiko — z.B. KI-Profiling, automatisierte Entscheidungen</div>
+          </div>
+        </div>
+
+        <!-- EU DSGVO label -->
+        <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple);margin-bottom:7px;display:flex;align-items:center;gap:6px;">
+          🇪🇺 EU-Recht (bei grenzüberschreitenden Daten / EU-Betroffene)
+          <span style="flex:1;height:1px;background:var(--purple-lt);display:block;"></span>
+        </div>
+        <div class="art-grid" style="margin-bottom:12px;">
+          <div class="art-card" onclick="toggleArt(this)" style="border-color:var(--purple-lt);">
+            <div class="art-num" style="color:var(--purple);">DSGVO Art. 3</div>
+            <div class="art-name">Anwendungsbereich</div>
+            <div class="art-desc">Gilt wenn EU-Bürger:innen betroffen sind — auch für Schweizer Unternehmen</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)" style="border-color:var(--purple-lt);">
+            <div class="art-num" style="color:var(--purple);">DSGVO Art. 44–49</div>
+            <div class="art-name">Drittlandtransfer</div>
+            <div class="art-desc">US-Cloud: Cloud Act ermöglicht US-Behördenzugriff trotz EU-Region oder DPA</div>
+          </div>
+          <div class="art-card" onclick="toggleArt(this)" style="border-color:var(--purple-lt);">
+            <div class="art-num" style="color:var(--purple);">EU AI Act</div>
+            <div class="art-name">KI-Risikostufen</div>
+            <div class="art-desc">High-Risk-KI (HR, Medizin, Justiz) — gilt für CH-Firmen mit EU-Marktzugang</div>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-top:4px;">
+          <div class="field-label">Weitere relevante Regelungen (Branche, Kanton)</div>
+          <input type="text" placeholder="z.B. Bankkundengeheimnis (Art. 47 BankG), Arztgeheimnis (Art. 321 StGB), kantonale DSG …">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Meine Einschätzung: Gesamtes Datenschutz-Risiko</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <button class="verdict-btn" onclick="selectRisk(this,'red')" style="border-color:var(--red);color:var(--red);">🔴 Sehr hoch</button>
+            <button class="verdict-btn" onclick="selectRisk(this,'amber')" style="border-color:var(--amber);color:var(--amber);">🟡 Mittel</button>
+            <button class="verdict-btn" onclick="selectRisk(this,'green')" style="border-color:var(--green);color:var(--green);">🟢 Niedrig</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: BEWERTUNGSMATRIX ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 2 · Bewertungsmatrix &amp; Entscheid</div>
+    <div class="sec-title">Cloud vs. On-Premise vs. Hybrid — Strategie wählen</div>
+    <div class="sec-desc">Bewerte jede Option pro Kriterium (1–3 Sterne) und triff am Ende einen begründeten Entscheid.</div>
+
+    <div style="overflow-x:auto;">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;font-size:0.72rem;color:var(--muted);font-weight:500;width:22%;">Kriterium</th>
+            <th style="text-align:left;font-size:0.72rem;color:var(--muted);font-weight:500;width:20%;">Was wird bewertet?</th>
+            <th class="th-cloud"  style="width:17%;">☁️ Cloud-LLM</th>
+            <th class="th-onprem" style="width:17%;">🖥 On-Premise</th>
+            <th class="th-hybrid" style="width:17%;">⚡ Hybrid</th>
+            <th style="width:7%;font-size:0.72rem;color:var(--muted);font-weight:500;">Entscheid</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-body">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Entscheid -->
+    <div class="decision-box">
+      <div class="decision-box-header">
+        <span>🏁 Unser Entscheid für diesen Use Case</span>
+      </div>
+      <div class="decision-box-body">
+        <div class="field-group">
+          <div class="field-label">Gewählte Strategie &amp; Begründung (2–3 Sätze)</div>
+          <textarea rows="2" placeholder="Wir entscheiden uns für ___ weil … Die entscheidenden Faktoren sind …"></textarea>
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <div class="field-label">Notwendige Schutzmassnahmen</div>
+            <textarea rows="2" placeholder="z.B. DPA abschliessen, Daten anonymisieren vor Prompt, Audit alle 6 Monate …"></textarea>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Offene Fragen / Klärungsbedarf</div>
+            <textarea rows="2" placeholder="z.B. Liegt ein DPA mit Anbieter vor? Interne IT-Kapazität für On-Premise? …"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: MEMO ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 3 · Datenschutz-Memo</div>
+    <div class="memo-section">
+      <div class="memo-header">
+        <div>
+          <div class="memo-title">3-Punkte-Datenschutz-Memo</div>
+          <div class="memo-sub">Für die eigene Organisation — klar, umsetzbar, ohne Fachjargon</div>
+        </div>
+        <div class="memo-badge">5 min</div>
+      </div>
+      <div class="memo-body">
+        <div class="memo-point">
+          <div class="memo-num">1</div>
+          <div class="memo-field">
+            <div class="memo-field-label">Risiko (Was ist das grösste Datenschutzrisiko in unserem Use Case?)</div>
+            <textarea class="memo-inp" rows="2" placeholder="Das grösste Risiko ist … weil …"></textarea>
+          </div>
+        </div>
+        <div class="memo-point">
+          <div class="memo-num">2</div>
+          <div class="memo-field">
+            <div class="memo-field-label">Massnahme (Was müssen wir konkret tun, bevor wir starten?)</div>
+            <textarea class="memo-inp" rows="2" placeholder="Bevor wir mit diesem Use Case starten, müssen wir …"></textarea>
+          </div>
+        </div>
+        <div class="memo-point">
+          <div class="memo-num">3</div>
+          <div class="memo-field">
+            <div class="memo-field-label">Empfehlung (Cloud, On-Premise oder Hybrid — und warum in einem Satz)</div>
+            <textarea class="memo-inp" rows="2" placeholder="Unsere Empfehlung ist ___ weil dies am besten die Anforderungen an revDSG-Konformität, Leistung und Budget erfüllt."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+  <span>CAS AI Hands-On · 10. April 2026 · Luzern</span>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">🎯 Modell-Entscheidung</a>
+    <a class="nav-link" href="KI-Modell-Canvas.html">🗺 KI-Modell-Canvas</a>
+  </div>
+</div>
+
+<script>
+// ── Checkbox toggle ─────────────────────────────────────────
+function toggleCheck(row) {
+  var box = row.querySelector('.sens-check-box');
+  if (!box) return;
+  box.classList.toggle('checked');
+}
+
+// ── DSGVO Article toggle ────────────────────────────────────
+function toggleArt(card) { card.classList.toggle('selected'); }
+
+// ── Risk level selector ─────────────────────────────────────
+function selectRisk(btn, color) {
+  var siblings = btn.parentElement.querySelectorAll('.verdict-btn');
+  siblings.forEach(function(b) {
+    b.style.background = '';
+    b.style.color = b.getAttribute('data-orig-color') || '';
+    b.style.borderColor = b.getAttribute('data-orig-border') || '';
+  });
+  var colorMap = { red: 'var(--red)', amber: 'var(--amber)', green: 'var(--green)' };
+  btn.style.background = colorMap[color];
+  btn.style.color = 'white';
+  btn.style.borderColor = colorMap[color];
+}
+
+// ── Matrix data ─────────────────────────────────────────────
+var CRITERIA = [
+  { name: "Datenschutz & revDSG",   hint: "Wo bleiben die Daten? Auslandsbekanntgabe (Art. 16 revDSG)?" },
+  { name: "Leistung & Qualität",    hint: "Wie gut ist das Modell für diesen Task?" },
+  { name: "Kosten",                 hint: "API-Kosten vs. Infrastrukturaufwand" },
+  { name: "Latenz",                 hint: "Antwortzeit — Real-Time oder Batch?" },
+  { name: "Anpassbarkeit",          hint: "Fine-Tuning möglich? Open Weights?" },
+  { name: "Setup-Aufwand",          hint: "IT-Ressourcen, Wartung, Expertise" },
+  { name: "Vendor-Unabhängigkeit",  hint: "Strategische Abhängigkeit von Anbieter" },
+];
+
+var ratings = {};
+var verdicts = {};
+
+function buildMatrix() {
+  var tbody = document.getElementById('matrix-body');
+  tbody.innerHTML = '';
+
+  CRITERIA.forEach(function(c, ci) {
+    var row = document.createElement('tr');
+    var cols = ['cloud', 'onprem', 'hybrid'];
+
+    row.innerHTML =
+      '<td>' + c.name + '</td>' +
+      '<td class="hint-cell">' + c.hint + '</td>' +
+      cols.map(function(col) {
+        return '<td class="rating-cell"><div class="rating-group">' +
+          [1,2,3].map(function(v) {
+            return '<div class="star" data-ci="' + ci + '" data-col="' + col + '" data-v="' + v + '" onclick="setRating(this,' + ci + ',\'' + col + '\',' + v + ')">★</div>';
+          }).join('') +
+          '</div></td>';
+      }).join('') +
+      '<td class="verdict-cell"><div class="rating-group" style="flex-direction:column;gap:3px;">' +
+        cols.map(function(col) {
+          var icons = { cloud: '☁️', onprem: '🖥', hybrid: '⚡' };
+          return '<button class="verdict-btn" onclick="setVerdict(this,' + ci + ',\'' + col + '\')">' + icons[col] + '</button>';
+        }).join('') +
+      '</div></td>';
+
+    tbody.appendChild(row);
+
+    // Notes row
+    var noteRow = document.createElement('tr');
+    noteRow.className = 'matrix-note-row';
+    noteRow.innerHTML = '<td colspan="6" style="padding:0 0 10px;">' +
+      '<input type="text" placeholder="Notiz zu ' + c.name + ' (optional) …" style="font-size:0.77rem;">' +
+      '</td>';
+    tbody.appendChild(noteRow);
+  });
+}
+
+function setRating(el, ci, col, v) {
+  if (!ratings[ci]) ratings[ci] = {};
+  ratings[ci][col] = v;
+  // Update stars in this group
+  var group = el.parentElement;
+  var stars = group.querySelectorAll('.star');
+  stars.forEach(function(s) {
+    var sv = parseInt(s.getAttribute('data-v'));
+    s.classList.remove('on', 'cloud', 'onprem', 'hybrid');
+    if (sv <= v) { s.classList.add('on', col); }
+  });
+}
+
+function setVerdict(btn, ci, col) {
+  verdicts[ci] = col;
+  var group = btn.closest('.rating-group');
+  group.querySelectorAll('.verdict-btn').forEach(function(b) {
+    b.classList.remove('active', 'cloud', 'onprem', 'hybrid');
+  });
+  btn.classList.add('active', col);
+}
+
+buildMatrix();
+</script>
+</body>
+</html>
