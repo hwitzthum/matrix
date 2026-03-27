@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmark-Challenge | CAS AI Hands-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,500;9..144,0,700;9..144,1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:     #182038;
+      --navy-mid: #253352;
+      --navy-lt:  #344066;
+      --accent:   #E8501A;
+      --paper:    #F7F5EF;
+      --white:    #FFFFFF;
+      --border:   #D6D2C8;
+      --muted:    #7A7E93;
+      --text:     #18202E;
+      --m1:       #3A548C;   --m1-lt: #EEF2FF;   /* Model 1 – blue */
+      --m2:       #1F6B47;   --m2-lt: #E6F4EE;   /* Model 2 – green */
+      --ta:       #6B3FA0;   --ta-lt: #F3EDFB;   /* Task a – purple */
+      --tb:       #B8741A;   --tb-lt: #FDF5E4;   /* Task b – gold */
+      --tc:       #C0392B;   --tc-lt: #FDECEA;   /* Task c – red */
+      --star-on:  #F59E0B;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #E8E5DE;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+    }
+
+    /* ── TOOLBAR ──────────────────────────── */
+    .toolbar {
+      max-width: 900px; margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 10px; }
+    .toolbar-logo {
+      background: var(--navy); color: white;
+      font-family: 'Fraunces', serif; font-size: 0.75rem; font-weight: 500;
+      padding: 5px 12px; border-radius: 6px;
+    }
+    .toolbar-tag { font-size: 0.72rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
+    .btn-print {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--navy); color: white; border: none;
+      padding: 9px 18px; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: background 0.15s, transform 0.15s;
+    }
+    .btn-print:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+    /* ── CARD ─────────────────────────────── */
+    .card {
+      max-width: 900px; margin: 0 auto 16px;
+      background: var(--white); border-radius: 14px;
+      box-shadow: 0 3px 24px rgba(24,32,56,0.11);
+      overflow: hidden;
+    }
+
+    /* ── PAGE HEADER ──────────────────────── */
+    .page-header {
+      background: var(--navy);
+      padding: 22px 28px 18px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    }
+    .ph-eyebrow { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.38); font-weight: 600; margin-bottom: 5px; }
+    .ph-title { font-family: 'Fraunces', serif; font-size: 1.45rem; font-weight: 500; color: white; line-height: 1.2; }
+    .ph-sub { font-size: 0.8rem; color: rgba(255,255,255,0.42); font-weight: 300; margin-top: 4px; }
+    .ph-meta { display: flex; gap: 10px; flex-shrink: 0; }
+    .meta-field { display: flex; flex-direction: column; gap: 3px; }
+    .meta-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); font-weight: 600; }
+    .meta-inp {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 6px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem; padding: 5px 10px; width: 148px; outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .meta-inp::placeholder { color: rgba(255,255,255,0.22); }
+    .meta-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.14); }
+
+    /* ── STEPS BAR ────────────────────────── */
+    .steps-bar {
+      background: var(--navy-mid); padding: 9px 28px;
+      display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+    }
+    .step-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 11px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 600;
+    }
+    .sp1 { background: rgba(107,63,160,0.35); color: #C8A8EC; }
+    .sp2 { background: rgba(184,116,26,0.35); color: #E8C878; }
+    .sp3 { background: rgba(58,84,140,0.35); color: #A8C0E8; }
+    .sp4 { background: rgba(192,57,43,0.35); color: #F0A898; }
+    .sp-num { width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 700; }
+    .steps-arr { color: rgba(255,255,255,0.18); font-size: 0.72rem; }
+
+    /* ── SECTION ──────────────────────────── */
+    .section { padding: 20px 26px 22px; }
+    .section + .section { border-top: 1px solid var(--border); }
+    .sec-label {
+      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── MODEL SETUP ──────────────────────── */
+    .model-setup {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+    }
+    .model-card {
+      border-radius: 10px; overflow: hidden; border: 2px solid;
+    }
+    .model-card.m1 { border-color: var(--m1); }
+    .model-card.m2 { border-color: var(--m2); }
+    .model-card-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .m1 .model-card-header { background: var(--m1); }
+    .m2 .model-card-header { background: var(--m2); }
+    .model-badge {
+      width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .model-card-label { font-size: 0.82rem; font-weight: 700; color: white; }
+    .model-card-body { padding: 10px 14px; background: var(--white); display: flex; flex-direction: column; gap: 7px; }
+    .field-label { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+
+    input[type=text], textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 7px;
+      font-family: 'Outfit', sans-serif; font-size: 0.83rem; color: var(--text);
+      padding: 7px 10px; outline: none; background: var(--paper);
+      line-height: 1.5; resize: none; transition: border-color 0.15s, background 0.15s;
+    }
+    input[type=text]::placeholder, textarea::placeholder { color: #C0BEBB; font-style: italic; font-weight: 300; }
+    input[type=text]:focus, textarea:focus { border-color: #8899AA; background: white; }
+
+    /* ── TASK PANELS ──────────────────────── */
+    .task-panel { border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border); margin-bottom: 14px; }
+    .task-panel:last-child { margin-bottom: 0; }
+
+    .task-header {
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .task-a .task-header { background: var(--ta-lt); border-bottom: 2px solid var(--ta); }
+    .task-b .task-header { background: var(--tb-lt); border-bottom: 2px solid var(--tb); }
+    .task-c .task-header { background: var(--tc-lt); border-bottom: 2px solid var(--tc); }
+
+    .task-letter {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .task-a .task-letter { background: var(--ta); }
+    .task-b .task-letter { background: var(--tb); }
+    .task-c .task-letter { background: var(--tc); }
+
+    .task-title-group { flex: 1; }
+    .task-title { font-size: 0.95rem; font-weight: 700; }
+    .task-a .task-title { color: var(--ta); }
+    .task-b .task-title { color: var(--tb); }
+    .task-c .task-title { color: var(--tc); }
+    .task-prompt-text { font-size: 0.75rem; color: var(--muted); font-weight: 300; margin-top: 2px; font-style: italic; }
+
+    .task-prompt-badge {
+      font-size: 0.68rem; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .task-a .task-prompt-badge { background: var(--ta); color: white; }
+    .task-b .task-prompt-badge { background: var(--tb); color: white; }
+    .task-c .task-prompt-badge { background: var(--tc); color: white; }
+
+    /* ── COMPARE TABLE ────────────────────── */
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th, .compare-table td { padding: 9px 14px; vertical-align: middle; }
+    .compare-table thead th { font-size: 0.78rem; font-weight: 700; text-align: center; padding: 10px 14px; }
+    .compare-table thead th:first-child { text-align: left; width: 24%; font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:last-child { border-bottom: none; }
+    .compare-table tbody td:first-child { width: 24%; }
+
+    .th-m1 { background: var(--m1-lt); color: var(--m1); border-radius: 8px 8px 0 0; }
+    .th-m2 { background: var(--m2-lt); color: var(--m2); border-radius: 8px 8px 0 0; }
+
+    .dim-name { font-size: 0.83rem; font-weight: 600; color: var(--navy); }
+    .dim-hint { font-size: 0.71rem; color: var(--muted); font-weight: 300; margin-top: 2px; line-height: 1.35; }
+
+    /* Stars */
+    .stars { display: flex; justify-content: center; gap: 3px; }
+    .star {
+      font-size: 1.1rem; cursor: pointer; color: #DDD;
+      transition: color 0.1s, transform 0.1s;
+      line-height: 1; user-select: none;
+    }
+    .star:hover { transform: scale(1.2); }
+    .star.on { color: var(--star-on); }
+
+    /* Notes cell */
+    .note-cell { width: 28%; }
+    .note-cell input[type=text] { font-size: 0.78rem; padding: 5px 8px; }
+
+    /* Winner row */
+    .winner-row td { padding: 10px 14px; }
+    .winner-cell { text-align: center; }
+    .winner-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--paper);
+      font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; color: var(--muted); transition: all 0.15s;
+    }
+    .winner-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .winner-btn.win-m1 { background: var(--m1); border-color: var(--m1); color: white; }
+    .winner-btn.win-m2 { background: var(--m2); border-color: var(--m2); color: white; }
+    .winner-btn.win-tie { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .obs-row td { padding: 4px 14px 12px; }
+
+    /* ── PRESENTATION PREP ────────────────── */
+    .pres-section {
+      background: var(--navy); border-radius: 12px; overflow: hidden;
+    }
+    .pres-header {
+      padding: 14px 20px 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pres-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 500; color: white; }
+    .pres-sub { font-size: 0.75rem; color: rgba(255,255,255,0.38); margin-top: 2px; font-weight: 300; }
+    .pres-timer {
+      background: var(--accent); color: white;
+      font-size: 0.82rem; font-weight: 700; padding: 5px 14px;
+      border-radius: 20px; letter-spacing: 0.03em;
+    }
+    .pres-body { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pres-field { display: flex; flex-direction: column; gap: 5px; }
+    .pres-field-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: rgba(255,255,255,0.35); }
+    .pres-inp {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.83rem; padding: 8px 12px; width: 100%; outline: none;
+      transition: border-color 0.15s, background 0.15s; resize: none; line-height: 1.5;
+    }
+    .pres-inp::placeholder { color: rgba(255,255,255,0.2); font-style: italic; font-weight: 300; }
+    .pres-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+    .pres-winner-row {
+      padding: 0 20px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .pres-winner-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: rgba(255,255,255,0.35); white-space: nowrap; }
+    .pres-winner-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pres-winner-btn {
+      padding: 7px 18px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.2);
+      background: transparent; color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .pres-winner-btn:hover { border-color: rgba(255,255,255,0.5); color: white; }
+    .pres-winner-btn.active-m1 { background: var(--m1); border-color: var(--m1); color: white; }
+    .pres-winner-btn.active-m2 { background: var(--m2); border-color: var(--m2); color: white; }
+    .pres-winner-btn.active-tie { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* ── FOOTER ───────────────────────────── */
+    .page-footer {
+      max-width: 900px; margin: 16px auto 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.7rem; color: #999; padding: 0 4px;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav-link {
+      color: var(--navy); font-weight: 500; text-decoration: none;
+      font-size: 0.72rem; display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      background: var(--white); border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .nav-link:hover { background: var(--paper); }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar, .page-footer { display: none; }
+      .card { box-shadow: none; border-radius: 0; max-width: 100%; margin: 0; }
+      input[type=text], textarea, .meta-inp, .pres-inp {
+        border-color: #CCC !important; background: white !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .task-header, .page-header, .steps-bar, .pres-section,
+      .task-a .task-letter, .task-b .task-letter, .task-c .task-letter,
+      .m1 .model-card-header, .m2 .model-card-header {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      @page { margin: 10mm; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">CAS AI Hands-On</div>
+    <div class="toolbar-tag">Block 2 · Benchmark-Challenge</div>
+  </div>
+  <button class="btn-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+</div>
+
+<!-- CARD -->
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <div class="ph-eyebrow">Block 2 · 10:15–10:45 · Hands-On · Gruppenarbeit (3–4 Personen)</div>
+      <div class="ph-title">Benchmark-Challenge: Modelle direkt vergleichen</div>
+      <div class="ph-sub">Modellunterschiede selber erleben — Qualität, Geschwindigkeit, Stil und Halluzinationen bewerten</div>
+    </div>
+    <div class="ph-meta">
+      <div class="meta-field">
+        <div class="meta-lbl">Name</div>
+        <input class="meta-inp" type="text" placeholder="Dein Name">
+      </div>
+      <div class="meta-field">
+        <div class="meta-lbl">Gruppe</div>
+        <input class="meta-inp" type="text" placeholder="Gruppe 1 …">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step-pill sp1"><span class="sp-num">1</span> Modelle eintragen</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp2"><span class="sp-num">2</span> 3 Tasks ausführen &amp; bewerten</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp3"><span class="sp-num">3</span> Gesamtsieger bestimmen</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp4"><span class="sp-num">4</span> 90-Sek. Präsentation vorbereiten</div>
+  </div>
+
+  <!-- ══ STEP 1: MODEL SETUP ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 1 · Eure zwei Modelle</div>
+    <div class="model-setup">
+
+      <div class="model-card m1">
+        <div class="model-card-header">
+          <div class="model-badge">M1</div>
+          <div class="model-card-label">Modell 1 — Cloud / Referenz</div>
+        </div>
+        <div class="model-card-body">
+          <div>
+            <div class="field-label">Modellname</div>
+            <input type="text" placeholder="z.B. Claude Sonnet 4.5, GPT-4o …">
+          </div>
+          <div>
+            <div class="field-label">Tool / Zugang</div>
+            <input type="text" placeholder="z.B. claude.ai, chat.openai.com …">
+          </div>
+        </div>
+      </div>
+
+      <div class="model-card m2">
+        <div class="model-card-header">
+          <div class="model-badge">M2</div>
+          <div class="model-card-label">Modell 2 — Lokal / Vergleich</div>
+        </div>
+        <div class="model-card-body">
+          <div>
+            <div class="field-label">Modellname</div>
+            <input type="text" placeholder="z.B. Phi-4-mini, Mistral 7B, Llama 4 …">
+          </div>
+          <div>
+            <div class="field-label">Tool / Zugang</div>
+            <input type="text" placeholder="z.B. Ollama lokal, LM Studio, Jan.ai …">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="background:var(--paper);border-radius:8px;padding:10px 14px;font-size:0.78rem;color:var(--muted);line-height:1.5;">
+      💡 <strong style="color:var(--navy);">Vorgehen:</strong> Schickt denselben Prompt an beide Modelle — ohne Anpassung. Bewertet die Antworten direkt danach, bevor ihr den nächsten Task startet.
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: TASKS ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 2 · 3 Tasks ausführen &amp; Ergebnisse bewerten</div>
+
+    <!-- ── TASK A ── -->
+    <div class="task-panel task-a">
+      <div class="task-header">
+        <div class="task-letter">a</div>
+        <div class="task-title-group">
+          <div class="task-title">Kreatives Schreiben</div>
+          <div class="task-prompt-text">Prompt exakt so verwenden — kein Anpassen!</div>
+        </div>
+        <div class="task-prompt-badge">Prompt unten</div>
+      </div>
+
+      <!-- Prompt Box -->
+      <div style="background:#F0ECFB;border-bottom:1px solid var(--border);padding:10px 18px;display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--ta);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;margin-top:2px;">Prompt</div>
+        <div style="font-size:0.82rem;color:var(--navy);font-style:italic;line-height:1.5;">
+          «Schreibe einen kurzen Einstieg (3–4 Sätze) für einen Nachrichtenartikel über den Einsatz von KI in der Schweizer Gesundheitsversorgung. Zielgruppe: informierte Laien, kein Fachjargon.»
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Bewertungsdimension</th>
+            <th class="th-m1">⬡ M1 — <span id="m1-label-a">Cloud-Modell</span></th>
+            <th class="th-m2">⬡ M2 — <span id="m2-label-a">Lokales Modell</span></th>
+            <th style="width:28%;font-size:0.72rem;color:var(--muted);font-weight:500;">Beobachtung / Notiz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="dim-name">Qualität &amp; Relevanz</div><div class="dim-hint">Trifft es die Aufgabe? Ist der Inhalt korrekt?</div></td>
+            <td><div class="stars" data-id="a-qual-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="a-qual-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Was fiel auf?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Sprache &amp; Stil</div><div class="dim-hint">Passt der Ton? Liest sich natürlich?</div></td>
+            <td><div class="stars" data-id="a-stil-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="a-stil-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Unterschiede im Stil?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Kreativität</div><div class="dim-hint">Überraschend? Oder generisch?</div></td>
+            <td><div class="stars" data-id="a-krea-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="a-krea-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Einfallsreich oder vorhersehbar?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Geschwindigkeit</div><div class="dim-hint">Wie lange bis zur Antwort?</div></td>
+            <td><input type="text" placeholder="ca. ___ Sek." style="text-align:center;font-size:0.8rem;"></td>
+            <td><input type="text" placeholder="ca. ___ Sek." style="text-align:center;font-size:0.8rem;"></td>
+            <td class="note-cell"><input type="text" placeholder="Merklicher Unterschied?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Halluzinationen?</div><div class="dim-hint">Fakten erfunden oder falsch?</div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'a-hall-m1','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'a-hall-m1','yes')">⚠ Ja</button></div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'a-hall-m2','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'a-hall-m2','yes')">⚠ Ja</button></div></td>
+            <td class="note-cell"><input type="text" placeholder="Was wurde erfunden?"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="obs-row"><td colspan="4">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr class="winner-row">
+            <td style="width:24%;font-size:0.78rem;font-weight:600;color:var(--navy);">🏆 Sieger Task a</td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-a','m1')">⬡ M1 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-a','m2')">⬡ M2 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-a','tie')">🤝 Unentschieden</button></td>
+            <td style="width:28%;"></td>
+          </tr>
+        </table>
+      </td></div>
+    </div>
+
+    <!-- ── TASK B ── -->
+    <div class="task-panel task-b">
+      <div class="task-header">
+        <div class="task-letter">b</div>
+        <div class="task-title-group">
+          <div class="task-title">Logik-Rätsel</div>
+          <div class="task-prompt-text">Prompt exakt so verwenden — kein Anpassen!</div>
+        </div>
+        <div class="task-prompt-badge">Prompt unten</div>
+      </div>
+
+      <div style="background:#FDF5E4;border-bottom:1px solid var(--border);padding:10px 18px;display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--tb);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;margin-top:2px;">Prompt</div>
+        <div style="font-size:0.82rem;color:var(--navy);font-style:italic;line-height:1.5;">
+          «Anna ist älter als Ben. Ben ist älter als Clara. Clara ist älter als David. Wer ist am jüngsten? Erkläre deine Antwort Schritt für Schritt.»
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Bewertungsdimension</th>
+            <th class="th-m1">⬡ M1 — <span id="m1-label-b">Cloud-Modell</span></th>
+            <th class="th-m2">⬡ M2 — <span id="m2-label-b">Lokales Modell</span></th>
+            <th style="width:28%;font-size:0.72rem;color:var(--muted);font-weight:500;">Beobachtung / Notiz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="dim-name">Korrektheit</div><div class="dim-hint">Ist die Antwort (David) richtig?</div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'b-corr-m1','no')">✓ Korrekt</button><button class="winner-btn" onclick="setHallucination(this,'b-corr-m1','yes')">✗ Falsch</button></div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'b-corr-m2','no')">✓ Korrekt</button><button class="winner-btn" onclick="setHallucination(this,'b-corr-m2','yes')">✗ Falsch</button></div></td>
+            <td class="note-cell"><input type="text" placeholder="Fehler oder korrekt?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Begründung &amp; Schritte</div><div class="dim-hint">Ist der Denkpfad klar erklärt?</div></td>
+            <td><div class="stars" data-id="b-beg-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="b-beg-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Wie gut erklärt?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Umgang mit Unsicherheit</div><div class="dim-hint">Gibt es Einschränkungen oder Annahmen an?</div></td>
+            <td><div class="stars" data-id="b-uns-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="b-uns-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Selbstkritisch oder überzeugt?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Geschwindigkeit</div><div class="dim-hint">Wie lange bis zur vollständigen Antwort?</div></td>
+            <td><input type="text" placeholder="ca. ___ Sek." style="text-align:center;font-size:0.8rem;"></td>
+            <td><input type="text" placeholder="ca. ___ Sek." style="text-align:center;font-size:0.8rem;"></td>
+            <td class="note-cell"><input type="text" placeholder="Merklicher Unterschied?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Halluzinationen?</div><div class="dim-hint">Wurden Fakten oder Schritte erfunden?</div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'b-hall-m1','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'b-hall-m1','yes')">⚠ Ja</button></div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'b-hall-m2','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'b-hall-m2','yes')">⚠ Ja</button></div></td>
+            <td class="note-cell"><input type="text" placeholder="Was wurde erfunden?"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="obs-row"><td colspan="4">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr class="winner-row">
+            <td style="width:24%;font-size:0.78rem;font-weight:600;color:var(--navy);">🏆 Sieger Task b</td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-b','m1')">⬡ M1 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-b','m2')">⬡ M2 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-b','tie')">🤝 Unentschieden</button></td>
+            <td style="width:28%;"></td>
+          </tr>
+        </table>
+      </td></div>
+    </div>
+
+    <!-- ── TASK C ── -->
+    <div class="task-panel task-c">
+      <div class="task-header">
+        <div class="task-letter">c</div>
+        <div class="task-title-group">
+          <div class="task-title">Daten-Zusammenfassung</div>
+          <div class="task-prompt-text">Prompt exakt so verwenden — kein Anpassen!</div>
+        </div>
+        <div class="task-prompt-badge">Prompt unten</div>
+      </div>
+
+      <div style="background:#FDECEA;border-bottom:1px solid var(--border);padding:10px 18px;display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--tc);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;margin-top:2px;">Prompt</div>
+        <div style="font-size:0.82rem;color:var(--navy);font-style:italic;line-height:1.5;">
+          «Hier sind Quartalszahlen eines fiktiven Unternehmens: Q1: CHF 1.2 Mio. / Q2: CHF 980'000 / Q3: CHF 1.45 Mio. / Q4: CHF 1.1 Mio. Fasse die wichtigsten Erkenntnisse in 3 Bullet Points zusammen und nenne den stärksten und schwächsten Monat.»
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Bewertungsdimension</th>
+            <th class="th-m1">⬡ M1 — <span id="m1-label-c">Cloud-Modell</span></th>
+            <th class="th-m2">⬡ M2 — <span id="m2-label-c">Lokales Modell</span></th>
+            <th style="width:28%;font-size:0.72rem;color:var(--muted);font-weight:500;">Beobachtung / Notiz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="dim-name">Korrektheit der Zahlen</div><div class="dim-hint">Sind Q3 (stärkste) und Q2 (schwächste) korrekt?</div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'c-corr-m1','no')">✓ Korrekt</button><button class="winner-btn" onclick="setHallucination(this,'c-corr-m1','yes')">✗ Falsch</button></div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'c-corr-m2','no')">✓ Korrekt</button><button class="winner-btn" onclick="setHallucination(this,'c-corr-m2','yes')">✗ Falsch</button></div></td>
+            <td class="note-cell"><input type="text" placeholder="Richtige Quartale genannt?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Vollständigkeit</div><div class="dim-hint">Sind alle 3 Bullet Points vorhanden und sinnvoll?</div></td>
+            <td><div class="stars" data-id="c-voll-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="c-voll-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Fehlende oder redundante Punkte?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Klarheit &amp; Knappheit</div><div class="dim-hint">Auf den Punkt — oder aufgeblasen?</div></td>
+            <td><div class="stars" data-id="c-klar-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="c-klar-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Präzise oder zu weitschweifig?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Mehrwert über Zahlen hinaus</div><div class="dim-hint">Gibt es Interpretation oder Kontext?</div></td>
+            <td><div class="stars" data-id="c-mehr-m1" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td><div class="stars" data-id="c-mehr-m2" onclick="rateStar(this)"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div></td>
+            <td class="note-cell"><input type="text" placeholder="Nur Zahlen oder echte Einsicht?"></td>
+          </tr>
+          <tr>
+            <td><div class="dim-name">Halluzinationen?</div><div class="dim-hint">Wurde etwas erfunden, das nicht im Prompt steht?</div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'c-hall-m1','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'c-hall-m1','yes')">⚠ Ja</button></div></td>
+            <td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;"><button class="winner-btn" onclick="setHallucination(this,'c-hall-m2','no')">✓ Keine</button><button class="winner-btn" onclick="setHallucination(this,'c-hall-m2','yes')">⚠ Ja</button></div></td>
+            <td class="note-cell"><input type="text" placeholder="Was wurde dazuerfunden?"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="obs-row"><td colspan="4">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr class="winner-row">
+            <td style="width:24%;font-size:0.78rem;font-weight:600;color:var(--navy);">🏆 Sieger Task c</td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-c','m1')">⬡ M1 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-c','m2')">⬡ M2 gewinnt</button></td>
+            <td class="winner-cell"><button class="winner-btn" onclick="setWinner(this,'task-c','tie')">🤝 Unentschieden</button></td>
+            <td style="width:28%;"></td>
+          </tr>
+        </table>
+      </td></div>
+    </div>
+
+  </div><!-- /section tasks -->
+
+  <!-- ══ STEP 3+4: GESAMTFAZIT & PRÄSENTATION ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 3 &amp; 4 · Gesamtfazit &amp; 90-Sek. Präsentation</div>
+    <div class="pres-section">
+      <div class="pres-header">
+        <div>
+          <div class="pres-title">Unser Favorit — und warum</div>
+          <div class="pres-sub">Bereitet eine Kurzpräsentation für das Plenum vor (90 Sekunden)</div>
+        </div>
+        <div class="pres-timer">⏱ 90 Sek.</div>
+      </div>
+
+      <!-- Overall winner -->
+      <div class="pres-winner-row">
+        <div class="pres-winner-label">Gesamtsieger</div>
+        <div class="pres-winner-btns">
+          <button class="pres-winner-btn" onclick="setPresWinner(this,'m1')">⬡ M1 ist unser Favorit</button>
+          <button class="pres-winner-btn" onclick="setPresWinner(this,'m2')">⬡ M2 ist unser Favorit</button>
+          <button class="pres-winner-btn" onclick="setPresWinner(this,'tie')">🤝 Kommt auf den Task an</button>
+        </div>
+      </div>
+
+      <div class="pres-body">
+        <div class="pres-field">
+          <div class="pres-field-label">Grösste Überraschung im Vergleich</div>
+          <textarea class="pres-inp" rows="2" placeholder="Was hat uns am meisten überrascht? Was haben wir nicht erwartet?"></textarea>
+        </div>
+        <div class="pres-field">
+          <div class="pres-field-label">Stärke von M1</div>
+          <textarea class="pres-inp" rows="2" placeholder="Wann wäre M1 die bessere Wahl?"></textarea>
+        </div>
+        <div class="pres-field">
+          <div class="pres-field-label">Stärke von M2</div>
+          <textarea class="pres-inp" rows="2" placeholder="Wann wäre M2 die bessere Wahl?"></textarea>
+        </div>
+        <div class="pres-field">
+          <div class="pres-field-label">Wichtigste Erkenntnis für unsere Arbeit</div>
+          <textarea class="pres-inp" rows="2" placeholder="Was nehmen wir mit? Würden wir eines der Modelle konkret einsetzen?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+  <span>CAS AI Hands-On · 10. April 2026 · Luzern</span>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">🎯 Modell-Entscheidung</a>
+    <a class="nav-link" href="KI-Modell-Canvas.html">🗺 KI-Modell-Canvas</a>
+    <a class="nav-link" href="Datenschutz-Audit.html">🔒 Datenschutz-Audit</a>
+  </div>
+</div>
+
+<script>
+// ── Star rating ─────────────────────────────────────────────
+function rateStar(group) {
+  var stars = group.querySelectorAll('.star');
+  var clicked = event.target;
+  if (!clicked.classList.contains('star')) return;
+  var idx = Array.from(stars).indexOf(clicked);
+  stars.forEach(function(s, i) {
+    s.classList.toggle('on', i <= idx);
+  });
+}
+
+// ── Binary toggle (correct/wrong, hallucination) ────────────
+function setHallucination(btn, id, val) {
+  var group = btn.closest('div');
+  group.querySelectorAll('.winner-btn').forEach(function(b) {
+    b.classList.remove('win-m1', 'win-m2', 'win-tie');
+    b.style.background = '';
+    b.style.color = '';
+    b.style.borderColor = '';
+  });
+  if (val === 'no') {
+    btn.style.background = 'var(--m2)';
+    btn.style.borderColor = 'var(--m2)';
+    btn.style.color = 'white';
+  } else {
+    btn.style.background = 'var(--tc)';
+    btn.style.borderColor = 'var(--tc)';
+    btn.style.color = 'white';
+  }
+}
+
+// ── Task winner ──────────────────────────────────────────────
+function setWinner(btn, taskId, who) {
+  var group = btn.closest('tr');
+  group.querySelectorAll('.winner-btn').forEach(function(b) {
+    b.classList.remove('win-m1', 'win-m2', 'win-tie');
+  });
+  if (who === 'm1')  btn.classList.add('win-m1');
+  if (who === 'm2')  btn.classList.add('win-m2');
+  if (who === 'tie') btn.classList.add('win-tie');
+}
+
+// ── Presentation overall winner ──────────────────────────────
+function setPresWinner(btn, who) {
+  btn.closest('.pres-winner-btns').querySelectorAll('.pres-winner-btn').forEach(function(b) {
+    b.classList.remove('active-m1','active-m2','active-tie');
+  });
+  if (who === 'm1')  btn.classList.add('active-m1');
+  if (who === 'm2')  btn.classList.add('active-m2');
+  if (who === 'tie') btn.classList.add('active-tie');
+}
+</script>
+</body>
+</html>
