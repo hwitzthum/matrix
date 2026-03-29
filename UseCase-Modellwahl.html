@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Use Case & Modellwahl | CAS AI Hands-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,300;9..144,0,500;9..144,0,700;9..144,1,300&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:     #182038;
+      --navy-mid: #253352;
+      --navy-lt:  #344066;
+      --accent:   #E8501A;
+      --paper:    #F7F5EF;
+      --white:    #FFFFFF;
+      --border:   #D6D2C8;
+      --muted:    #7A7E93;
+      --text:     #18202E;
+      --c1: #3A548C; --c1-lt: #EEF2FF;
+      --c2: #1F6B47; --c2-lt: #E6F4EE;
+      --c3: #7A3FA0; --c3-lt: #F3EDFB;
+      --c4: #B8741A; --c4-lt: #FDF5E4;
+      --c5: #C0392B; --c5-lt: #FDECEA;
+      --c6: #0E6B6B; --c6-lt: #E0F2F2;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #E8E5DE;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+    }
+
+    /* ── TOOLBAR ──────────────────────── */
+    .toolbar {
+      max-width: 860px; margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 10px; }
+    .toolbar-logo {
+      background: var(--navy); color: white;
+      font-family: 'Fraunces', serif; font-size: 0.75rem; font-weight: 500;
+      padding: 5px 12px; border-radius: 6px;
+    }
+    .toolbar-tag { font-size: 0.72rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
+    .btn-print {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--navy); color: white; border: none;
+      padding: 9px 18px; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: background 0.15s, transform 0.15s;
+    }
+    .btn-print:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+    /* ── CARD ─────────────────────────── */
+    .card {
+      max-width: 860px; margin: 0 auto 16px;
+      background: var(--white); border-radius: 14px;
+      box-shadow: 0 3px 24px rgba(24,32,56,0.11);
+      overflow: hidden;
+    }
+
+    /* ── PAGE HEADER ──────────────────── */
+    .page-header {
+      background: var(--navy);
+      padding: 22px 28px 18px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    }
+    .ph-eyebrow { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.38); font-weight: 600; margin-bottom: 5px; }
+    .ph-title { font-family: 'Fraunces', serif; font-size: 1.45rem; font-weight: 500; color: white; line-height: 1.2; }
+    .ph-sub { font-size: 0.8rem; color: rgba(255,255,255,0.42); font-weight: 300; margin-top: 4px; }
+    .ph-meta { display: flex; gap: 10px; flex-shrink: 0; }
+    .meta-field { display: flex; flex-direction: column; gap: 3px; }
+    .meta-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.32); font-weight: 600; }
+    .meta-inp {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 6px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem; padding: 5px 10px; width: 148px; outline: none;
+    }
+    .meta-inp::placeholder { color: rgba(255,255,255,0.22); }
+    .meta-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.14); }
+
+    /* ── STEPS BAR ────────────────────── */
+    .steps-bar {
+      background: var(--navy-mid); padding: 9px 28px;
+      display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+    }
+    .step-pill { display: flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; }
+    .sp1 { background: rgba(58,84,140,0.4); color: #A8C0E8; }
+    .sp2 { background: rgba(31,107,71,0.4); color: #90CFA8; }
+    .sp3 { background: rgba(122,63,160,0.4); color: #C8A0E8; }
+    .sp4 { background: rgba(232,80,26,0.35); color: #F8A888; }
+    .sp-num { width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 700; }
+    .steps-arr { color: rgba(255,255,255,0.18); font-size: 0.72rem; }
+
+    /* ── SECTION ──────────────────────── */
+    .section { padding: 20px 26px 22px; }
+    .section + .section { border-top: 1.5px solid var(--border); }
+    .sec-label {
+      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em;
+      font-weight: 700; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .sec-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 500; color: var(--navy); margin-bottom: 4px; }
+    .sec-desc { font-size: 0.8rem; color: var(--muted); font-weight: 300; margin-bottom: 16px; line-height: 1.5; }
+
+    /* ── INPUTS ───────────────────────── */
+    textarea, input[type=text] {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.83rem; color: var(--text);
+      padding: 8px 11px; outline: none; background: var(--paper);
+      line-height: 1.5; resize: none; transition: border-color 0.15s, background 0.15s;
+    }
+    textarea::placeholder, input[type=text]::placeholder { color: #C0BEBB; font-style: italic; font-weight: 300; }
+    textarea:focus, input[type=text]:focus { border-color: #8899AA; background: white; }
+
+    .field-label { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+    .field-group { margin-bottom: 10px; }
+    .field-group:last-child { margin-bottom: 0; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    /* ── USE CASE BOX ─────────────────── */
+    .usecase-box {
+      border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 0;
+    }
+    .usecase-header {
+      background: var(--paper); padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .uc-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .uc-title { font-weight: 700; font-size: 0.88rem; color: var(--navy); }
+    .uc-hint { font-size: 0.73rem; color: var(--muted); font-weight: 300; }
+    .usecase-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── DIMENSION CARDS ──────────────── */
+    .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .dim-card { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+    .dim-header { padding: 9px 14px; display: flex; align-items: flex-start; gap: 10px; }
+    .dim-num {
+      width: 24px; height: 24px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .dim-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 2px; }
+    .dim-hint { font-size: 0.72rem; color: var(--muted); font-weight: 300; line-height: 1.4; }
+    .dim-body { padding: 8px 14px 12px; background: var(--white); display: flex; flex-direction: column; gap: 8px; }
+
+    /* Option pills per dimension */
+    .opt-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .opt-pill {
+      padding: 5px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--paper);
+      font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 500;
+      cursor: pointer; color: var(--muted); transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .opt-pill:hover { border-color: #AAAAAA; color: var(--text); }
+
+    /* Dimension colors */
+    .d1 .dim-header { background: var(--c1-lt); border-bottom: 1px solid #D0D8F0; }
+    .d1 .dim-num    { background: var(--c1); }
+    .d1 .dim-title  { color: var(--c1); }
+    .d1 .opt-pill.on { background: var(--c1); border-color: var(--c1); color: white; }
+
+    .d2 .dim-header { background: var(--c2-lt); border-bottom: 1px solid #C0DDD0; }
+    .d2 .dim-num    { background: var(--c2); }
+    .d2 .dim-title  { color: var(--c2); }
+    .d2 .opt-pill.on { background: var(--c2); border-color: var(--c2); color: white; }
+
+    .d3 .dim-header { background: var(--c4-lt); border-bottom: 1px solid #E8D8B0; }
+    .d3 .dim-num    { background: var(--c4); }
+    .d3 .dim-title  { color: var(--c4); }
+    .d3 .opt-pill.on { background: var(--c4); border-color: var(--c4); color: white; }
+
+    .d4 .dim-header { background: var(--c6-lt); border-bottom: 1px solid #B0D8D8; }
+    .d4 .dim-num    { background: var(--c6); }
+    .d4 .dim-title  { color: var(--c6); }
+    .d4 .opt-pill.on { background: var(--c6); border-color: var(--c6); color: white; }
+
+    .d5 .dim-header { background: var(--c3-lt); border-bottom: 1px solid #D0C0E8; }
+    .d5 .dim-num    { background: var(--c3); }
+    .d5 .dim-title  { color: var(--c3); }
+    .d5 .opt-pill.on { background: var(--c3); border-color: var(--c3); color: white; }
+
+    .d6 .dim-header { background: var(--c5-lt); border-bottom: 1px solid #E0B8B0; }
+    .d6 .dim-num    { background: var(--c5); }
+    .d6 .dim-title  { color: var(--c5); }
+    .d6 .opt-pill.on { background: var(--c5); border-color: var(--c5); color: white; }
+
+    /* ── DECISION BOX ─────────────────── */
+    .decision-block {
+      background: var(--navy); border-radius: 12px; overflow: hidden; margin-top: 4px;
+    }
+    .decision-header {
+      padding: 13px 20px 11px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .decision-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 500; color: white; }
+    .decision-sub { font-size: 0.75rem; color: rgba(255,255,255,0.38); font-weight: 300; margin-top: 2px; }
+    .decision-tool-link {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.6);
+      text-decoration: none; transition: all 0.15s;
+    }
+    .decision-tool-link:hover { background: rgba(255,255,255,0.14); color: white; }
+
+    .decision-body { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Model choice buttons */
+    .model-choice-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .model-choice-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: rgba(255,255,255,0.32); margin-bottom: 7px; }
+    .model-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06);
+      font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; color: rgba(255,255,255,0.5); transition: all 0.15s;
+      text-align: left;
+    }
+    .model-btn:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .model-btn .mb-icon { font-size: 1rem; }
+    .model-btn .mb-name { font-size: 0.8rem; font-weight: 700; }
+    .model-btn .mb-ex { font-size: 0.68rem; font-weight: 300; color: inherit; display: block; opacity: 0.7; margin-top: 1px; }
+    .model-btn.sel-reasoning { background: var(--c1); border-color: var(--c1); color: white; }
+    .model-btn.sel-cloud     { background: var(--c6); border-color: var(--c6); color: white; }
+    .model-btn.sel-slm       { background: var(--c2); border-color: var(--c2); color: white; }
+    .model-btn.sel-open      { background: var(--c3); border-color: var(--c3); color: white; }
+    .model-btn.sel-reasoning .mb-ex,
+    .model-btn.sel-cloud .mb-ex,
+    .model-btn.sel-slm .mb-ex,
+    .model-btn.sel-open .mb-ex { opacity: 0.85; }
+
+    .decision-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .d-field { display: flex; flex-direction: column; gap: 4px; }
+    .d-field-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: rgba(255,255,255,0.32); }
+    .d-inp {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px; color: white; font-family: 'Outfit', sans-serif;
+      font-size: 0.83rem; padding: 8px 12px; width: 100%; outline: none;
+      transition: border-color 0.15s, background 0.15s; resize: none; line-height: 1.5;
+    }
+    .d-inp::placeholder { color: rgba(255,255,255,0.2); font-style: italic; font-weight: 300; }
+    .d-inp:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+
+    /* ── PEER REVIEW ──────────────────── */
+    .peer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .peer-card { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .peer-card-header {
+      padding: 9px 14px; background: var(--paper);
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .peer-role { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .peer-role.giver { color: var(--c2); }
+    .peer-role.receiver { color: var(--c1); }
+    .peer-card-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+    .question-list { display: flex; flex-direction: column; gap: 6px; }
+    .q-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 10px; background: var(--paper); border-radius: 7px;
+      font-size: 0.8rem; color: var(--muted); line-height: 1.4;
+    }
+    .q-num {
+      width: 18px; height: 18px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+    }
+    .q-num.giver-num { background: var(--c2); color: white; }
+    .q-num.receiver-num { background: var(--c1); color: white; }
+
+    /* ── PRESENTATION PREP ────────────── */
+    .pres-strip {
+      background: var(--accent); border-radius: 10px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .pres-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .pres-text { flex: 1; }
+    .pres-text-title { font-weight: 700; font-size: 0.9rem; color: white; margin-bottom: 2px; }
+    .pres-text-desc { font-size: 0.78rem; color: rgba(255,255,255,0.75); line-height: 1.4; }
+    .pres-timer { background: rgba(255,255,255,0.2); color: white; font-size: 0.82rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+
+    .outcome-box {
+      background: var(--paper); border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .outcome-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .outcome-text { font-size: 0.82rem; color: var(--navy); line-height: 1.5; }
+    .outcome-text strong { color: var(--accent); }
+
+    /* ── FOOTER ───────────────────────── */
+    .page-footer {
+      max-width: 860px; margin: 16px auto 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.7rem; color: #999; padding: 0 4px;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav-link {
+      color: var(--navy); font-weight: 500; text-decoration: none;
+      font-size: 0.72rem; display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      background: var(--white); border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .nav-link:hover { background: var(--paper); }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .toolbar, .page-footer { display: none; }
+      .card { box-shadow: none; border-radius: 0; max-width: 100%; margin: 0; }
+      textarea, input[type=text], .meta-inp, .d-inp {
+        border-color: #CCC !important; background: white !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .dim-header, .page-header, .steps-bar, .decision-block,
+      .pres-strip, .usecase-header, .peer-card-header {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      @page { margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-logo">CAS AI Hands-On</div>
+    <div class="toolbar-tag">Block 4 · Use Case & Modellwahl</div>
+  </div>
+  <button class="btn-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+</div>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <div class="ph-eyebrow">Block 4 · 11:20–12:00 · Hands-On · Einzelarbeit + Peer-Review</div>
+      <div class="ph-title">Use Case & Modellwahl</div>
+      <div class="ph-sub">Eigene Praxissituation analysieren — Modellentscheid begründen und verteidigen</div>
+    </div>
+    <div class="ph-meta">
+      <div class="meta-field">
+        <div class="meta-lbl">Name</div>
+        <input class="meta-inp" type="text" placeholder="Dein Name">
+      </div>
+      <div class="meta-field">
+        <div class="meta-lbl">Organisation</div>
+        <input class="meta-inp" type="text" placeholder="Firma / Kanton …">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step-pill sp1"><span class="sp-num">1</span> Use Case beschreiben (10 min)</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp2"><span class="sp-num">2</span> Matrix ausfüllen &amp; Modell wählen (15 min)</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp3"><span class="sp-num">3</span> Peer-Review zu zweit (15 min)</div>
+    <div class="steps-arr">→</div>
+    <div class="step-pill sp4"><span class="sp-num">4</span> Plenum (3 min / Person)</div>
+  </div>
+
+  <!-- ══ STEP 1: USE CASE ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 1 · Meinen Use Case beschreiben</div>
+    <div class="sec-title">Welche konkrete Aufgabe aus meinem Arbeitsalltag soll KI unterstützen?</div>
+    <div class="sec-desc">Beschreibe so konkret wie möglich — «KI für die Arbeit» ist zu allgemein. Denke an eine wiederkehrende Aufgabe, die heute viel Zeit kostet.</div>
+
+    <div class="usecase-box">
+      <div class="usecase-header">
+        <div class="uc-icon">📋</div>
+        <div>
+          <div class="uc-title">Mein Use Case</div>
+          <div class="uc-hint">Je konkreter, desto besser ist die spätere Modellwahl</div>
+        </div>
+      </div>
+      <div class="usecase-body">
+        <div class="field-group">
+          <div class="field-label">Was soll die KI genau tun? (1–2 Sätze)</div>
+          <textarea rows="2" placeholder="z.B. Ich möchte Sitzungsprotokolle (in Deutsch) automatisch aus Audio-Transkripten zusammenfassen und dabei die wichtigsten Entscheide und To-dos hervorheben."></textarea>
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <div class="field-label">In welcher Abteilung / welchem Kontext?</div>
+            <input type="text" placeholder="z.B. Geschäftsleitung, HR, IT, Recht …">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Wie oft wird dieser Task ausgeführt?</div>
+            <input type="text" placeholder="z.B. täglich, wöchentlich, ad-hoc …">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <div class="field-label">Was kostet dieser Task heute? (Zeit / Aufwand)</div>
+            <input type="text" placeholder="z.B. ca. 2 Std./Woche, 3 Personen involviert …">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Welche Daten fliessen in den Prompt? (kurz)</div>
+            <input type="text" placeholder="z.B. Transkripte, Kundendaten, interne Berichte …">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Woran erkenne ich, dass die KI-Lösung gut funktioniert? (Erfolgskriterium)</div>
+          <textarea rows="2" placeholder="z.B. Das Protokoll ist innerhalb von 5 Minuten nach dem Meeting fertig, alle Entscheide sind korrekt erfasst, kein manuelles Nacharbeiten nötig."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: MATRIX ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 2 · Entscheidungsmatrix — 6 Dimensionen bewerten</div>
+    <div class="sec-title">Was brauche ich wirklich?</div>
+    <div class="sec-desc">Wähle pro Dimension die Option, die auf deinen Use Case am besten zutrifft. Am Ende bestimmst du das empfohlene Modell.</div>
+
+    <div class="dim-grid" style="margin-bottom:14px;">
+
+      <!-- D1: Aufgabentyp -->
+      <div class="dim-card d1">
+        <div class="dim-header">
+          <div class="dim-num">1</div>
+          <div>
+            <div class="dim-title">Aufgabentyp</div>
+            <div class="dim-hint">Was muss das Modell primär leisten?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d1')">🧮 Reasoning / Logik</button>
+            <button class="opt-pill" onclick="togglePill(this,'d1')">✍️ Kreation / Text</button>
+            <button class="opt-pill" onclick="togglePill(this,'d1')">🔍 Extraktion / Klassifikation</button>
+            <button class="opt-pill" onclick="togglePill(this,'d1')">💬 Dialog / Chatbot</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Meine Wahl für diesen Use Case</div>
+            <input type="text" placeholder="Aufgabentyp: … weil …">
+          </div>
+        </div>
+      </div>
+
+      <!-- D2: Datensensitivität -->
+      <div class="dim-card d2">
+        <div class="dim-header">
+          <div class="dim-num">2</div>
+          <div>
+            <div class="dim-title">Datensensitivität</div>
+            <div class="dim-hint">Wie sensitiv sind die verarbeiteten Daten?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d2')">🔒 Sehr hoch (Art. 5 lit.c revDSG)</button>
+            <button class="opt-pill" onclick="togglePill(this,'d2')">🔑 Mittel (anonymisierbar)</button>
+            <button class="opt-pill" onclick="togglePill(this,'d2')">🌐 Niedrig (öffentlich)</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Welche Daten konkret? Warum diese Stufe?</div>
+            <input type="text" placeholder="Sensitivität: … weil die Daten …">
+          </div>
+        </div>
+      </div>
+
+      <!-- D3: Budget -->
+      <div class="dim-card d3">
+        <div class="dim-header">
+          <div class="dim-num">3</div>
+          <div>
+            <div class="dim-title">Budget</div>
+            <div class="dim-hint">Welcher Kostenrahmen steht zur Verfügung?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d3')">💶 Minimal / Kein API-Budget</button>
+            <button class="opt-pill" onclick="togglePill(this,'d3')">💰 Begrenzt (bis ca. 500 CHF/Mt.)</button>
+            <button class="opt-pill" onclick="togglePill(this,'d3')">🏦 Grosszügig / Kein Limit</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Budgetsituation in meiner Organisation</div>
+            <input type="text" placeholder="Budget: … weil …">
+          </div>
+        </div>
+      </div>
+
+      <!-- D4: Latenz -->
+      <div class="dim-card d4">
+        <div class="dim-header">
+          <div class="dim-num">4</div>
+          <div>
+            <div class="dim-title">Latenz / Geschwindigkeit</div>
+            <div class="dim-hint">Wie zeitkritisch ist die Antwort?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d4')">⚡ Echtzeit (&lt;1 Sek.)</button>
+            <button class="opt-pill" onclick="togglePill(this,'d4')">⏱️ Normal (1–10 Sek.)</button>
+            <button class="opt-pill" onclick="togglePill(this,'d4')">🗂️ Unkritisch (Batch)</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Warum diese Latenz-Anforderung?</div>
+            <input type="text" placeholder="Latenz: … weil der Task …">
+          </div>
+        </div>
+      </div>
+
+      <!-- D5: Anpassbarkeit -->
+      <div class="dim-card d5">
+        <div class="dim-header">
+          <div class="dim-num">5</div>
+          <div>
+            <div class="dim-title">Anpassbarkeit</div>
+            <div class="dim-hint">Muss das Modell auf eigene Daten angepasst werden?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d5')">🔧 Fine-Tuning erforderlich</button>
+            <button class="opt-pill" onclick="togglePill(this,'d5')">📝 Prompt-Engineering reicht</button>
+            <button class="opt-pill" onclick="togglePill(this,'d5')">❓ Noch unklar</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Begründung für diese Wahl</div>
+            <input type="text" placeholder="Anpassbarkeit: … weil …">
+          </div>
+        </div>
+      </div>
+
+      <!-- D6: Vendor Lock-in -->
+      <div class="dim-card d6">
+        <div class="dim-header">
+          <div class="dim-num">6</div>
+          <div>
+            <div class="dim-title">Anbieter-Unabhängigkeit</div>
+            <div class="dim-hint">Wie wichtig ist Vendor Lock-in-Vermeidung?</div>
+          </div>
+        </div>
+        <div class="dim-body">
+          <div class="opt-pills">
+            <button class="opt-pill" onclick="togglePill(this,'d6')">🛡️ Unbedingt vermeiden</button>
+            <button class="opt-pill" onclick="togglePill(this,'d6')">⚖️ Akzeptabel mit Exit-Plan</button>
+            <button class="opt-pill" onclick="togglePill(this,'d6')">✅ Kein Problem</button>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div class="field-label">Strategische Überlegung</div>
+            <input type="text" placeholder="Abhängigkeit: … weil meine Org …">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Model Decision -->
+    <div class="decision-block">
+      <div class="decision-header">
+        <div>
+          <div class="decision-title">Mein Modell-Entscheid</div>
+          <div class="decision-sub">Wähle das empfohlene Modell und begründe deinen Entscheid</div>
+        </div>
+        <a class="decision-tool-link" href="index.html" target="_blank">🎯 Digitales Tool öffnen →</a>
+      </div>
+      <div class="decision-body">
+
+        <div>
+          <div class="model-choice-lbl">Empfohlenes Modell für meinen Use Case</div>
+          <div class="model-choice-row">
+            <button class="model-btn" onclick="selectModel(this,'reasoning')">
+              <span class="mb-icon">🧮</span>
+              <span><span class="mb-name">Reasoning-Modell</span><span class="mb-ex">o4-mini · Claude Thinking · DeepSeek-R1</span></span>
+            </button>
+            <button class="model-btn" onclick="selectModel(this,'cloud')">
+              <span class="mb-icon">☁️</span>
+              <span><span class="mb-name">Cloud-LLM</span><span class="mb-ex">GPT-5 · Claude 4 Sonnet · Gemini 3</span></span>
+            </button>
+            <button class="model-btn" onclick="selectModel(this,'slm')">
+              <span class="mb-icon">🖥️</span>
+              <span><span class="mb-name">SLM lokal</span><span class="mb-ex">Phi-4-mini · Mistral 7B · Gemma 3</span></span>
+            </button>
+            <button class="model-btn" onclick="selectModel(this,'open')">
+              <span class="mb-icon">🔓</span>
+              <span><span class="mb-name">Open-Source LLM</span><span class="mb-ex">Llama 4 · DeepSeek V3.2 · Mistral Large</span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="decision-fields">
+          <div class="d-field">
+            <div class="d-field-lbl">Hauptbegründung (2–3 Sätze)</div>
+            <textarea class="d-inp" rows="2" placeholder="Ich wähle dieses Modell weil … Die entscheidenden Dimensionen für mich sind …"></textarea>
+          </div>
+          <div class="d-field">
+            <div class="d-field-lbl">Datenschutz-Strategie (revDSG)</div>
+            <textarea class="d-inp" rows="2" placeholder="Für diesen Use Case gilt: … Schutzmassnahme: Anonymisierung / DPA / On-Premise, weil …"></textarea>
+          </div>
+          <div class="d-field">
+            <div class="d-field-lbl">Konkrete nächste Umsetzungsschritte</div>
+            <textarea class="d-inp" rows="2" placeholder="1. … 2. … 3. … (Was tue ich in der nächsten Woche konkret?)"></textarea>
+          </div>
+          <div class="d-field">
+            <div class="d-field-lbl">Offene Fragen / was muss ich noch klären?</div>
+            <textarea class="d-inp" rows="2" placeholder="Noch unklar ist: … Ich muss noch klären: …"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: PEER REVIEW ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 3 · Peer-Review zu zweit</div>
+    <div class="sec-title">Eine Person stellt vor — die andere hinterfragt</div>
+    <div class="sec-desc">Wechselt die Rollen nach 7 Minuten. Ziel: Blinde Flecken aufdecken und Alternativen prüfen — nicht kritisieren, sondern schärfen.</div>
+
+    <div class="peer-grid">
+
+      <!-- Feedback-Geber -->
+      <div class="peer-card">
+        <div class="peer-card-header">
+          <div class="peer-role giver">💬 Feedback-Geber:in</div>
+          <div style="font-size:0.72rem;color:var(--muted);font-weight:300;margin-left:auto;">hinterfragt den Use Case der anderen Person</div>
+        </div>
+        <div class="peer-card-body">
+          <div class="question-list">
+            <div class="q-item"><div class="q-num giver-num">1</div>Passt das gewählte Modell wirklich zum Aufgabentyp — oder gibt es eine bessere Alternative?</div>
+            <div class="q-item"><div class="q-num giver-num">2</div>Ist die Datensensitivität realistisch eingeschätzt? Welche Daten könnten noch involviert sein?</div>
+            <div class="q-item"><div class="q-num giver-num">3</div>Ist die Datenschutz-Strategie revDSG-konform? Fehlt ein DPA oder eine Anonymisierung?</div>
+            <div class="q-item"><div class="q-num giver-num">4</div>Wäre ein Hybrid-Ansatz (lokal + Cloud) sinnvoller als die gewählte Lösung?</div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Meine wichtigste Rückmeldung</div>
+            <textarea rows="2" placeholder="Ich würde empfehlen … weil …"></textarea>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Alternative Modell-Empfehlung (falls andere Wahl)</div>
+            <input type="text" placeholder="Alternative: … weil Dimension X anders gewichtet werden sollte …">
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback-Empfänger -->
+      <div class="peer-card">
+        <div class="peer-card-header">
+          <div class="peer-role receiver">📝 Feedback-Empfänger:in</div>
+          <div style="font-size:0.72rem;color:var(--muted);font-weight:300;margin-left:auto;">stellt vor und notiert Feedback</div>
+        </div>
+        <div class="peer-card-body">
+          <div style="background:var(--paper);border-radius:7px;padding:10px 12px;font-size:0.8rem;color:var(--muted);line-height:1.5;margin-bottom:6px;">
+            <strong style="color:var(--navy);">Deine Aufgabe beim Vorstellen:</strong><br>
+            Erkläre Use Case (1 min) → zeige deine Dimensionsbewertungen (2 min) → begründe Modellwahl (1 min) → beantworte Fragen (3 min)
+          </div>
+          <div class="field-group">
+            <div class="field-label">Was war die wertvollste Rückmeldung?</div>
+            <textarea rows="2" placeholder="Die wichtigste Erkenntnis aus dem Peer-Review: …"></textarea>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Was ändere ich an meinem Entscheid?</div>
+            <textarea rows="2" placeholder="Nach dem Feedback passe ich folgendes an: … / Ich bleibe bei meiner Wahl weil …"></textarea>
+          </div>
+          <div class="field-group">
+            <div class="field-label">Überarbeiteter / bestätigter Modell-Entscheid</div>
+            <input type="text" placeholder="Mein finaler Entscheid: …">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 & OUTCOME ══ -->
+  <div class="section">
+    <div class="sec-label">Schritt 4 · Kurzpräsentation &amp; Outcome</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="pres-strip">
+        <div class="pres-icon">🎤</div>
+        <div class="pres-text">
+          <div class="pres-text-title">Kurzpräsentation im Plenum — für 2–3 Freiwillige</div>
+          <div class="pres-text-desc">Use Case (30 Sek.) · Modellwahl + Begründung (1 Min.) · Wichtigste Peer-Feedback-Erkenntnis (30 Sek.) · Nächster Schritt (30 Sek.)</div>
+        </div>
+        <div class="pres-timer">⏱ 3 Min.</div>
+      </div>
+      <div class="outcome-box">
+        <div class="outcome-icon">🏁</div>
+        <div class="outcome-text"><strong>Outcome:</strong> Du verlässt den Workshop mit einer begründeten Modellentscheidung für einen echten Use Case aus deiner Organisation — und einem konkreten nächsten Schritt.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+  <span>CAS AI Hands-On · 10. April 2026 · Luzern</span>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">🎯 Modell-Entscheidungsmatrix</a>
+    <a class="nav-link" href="KI-Modell-Canvas.html">🗺 KI-Modell-Canvas</a>
+    <a class="nav-link" href="Datenschutz-Audit.html">🔒 Datenschutz-Audit</a>
+    <a class="nav-link" href="Benchmark-Challenge.html">📊 Benchmark</a>
+  </div>
+</div>
+
+<script>
+// ── Dimension pills (single-select per group) ────────────────
+function togglePill(btn, group) {
+  var siblings = btn.closest('.opt-pills').querySelectorAll('.opt-pill');
+  siblings.forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+// ── Model selection ──────────────────────────────────────────
+function selectModel(btn, type) {
+  var siblings = btn.closest('.model-choice-row').querySelectorAll('.model-btn');
+  siblings.forEach(function(b) {
+    b.classList.remove('sel-reasoning','sel-cloud','sel-slm','sel-open');
+  });
+  btn.classList.add('sel-' + type);
+}
+</script>
+</body>
+</html>
