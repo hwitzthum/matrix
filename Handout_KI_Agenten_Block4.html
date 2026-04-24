@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handout – Out-of-the-Box KI-Agenten – Block 4</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
+  :root { --gold:#F5A623; --obsidian:#0A0A0A; --ink:#1C1C1C; --cream:#F4F2EE; --white:#FAFAFA; --warmGrey:#E8E5DF; --midGrey:#9A9590; --charcoal:#111111; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',Calibri,sans-serif; background:var(--cream); color:var(--ink); font-size:11pt; line-height:1.6; }
+  .page { width:210mm; min-height:297mm; margin:0 auto; padding:16mm 18mm; background:var(--white); }
+  .header { background:var(--obsidian); margin:-16mm -18mm 0 -18mm; padding:10mm 18mm; display:flex; align-items:center; justify-content:space-between; }
+  .logo { font-family:Georgia,serif; font-size:22pt; font-weight:400; color:var(--white); }
+  .logo .a, .logo .i { color:var(--gold); }
+  .header-meta { text-align:right; font-size:8pt; color:rgba(255,255,255,0.45); letter-spacing:0.12em; text-transform:uppercase; line-height:1.8; }
+  .gold-rule { height:3px; background:linear-gradient(to right,var(--gold),transparent); margin-bottom:10mm; }
+  .workshop-info { border-left:3px solid var(--gold); padding:3mm 5mm; margin-bottom:8mm; background:var(--cream); }
+  .workshop-info .tag { font-size:7.5pt; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:var(--midGrey); margin-bottom:1.5mm; }
+  .workshop-info h1 { font-family:Georgia,serif; font-size:17pt; font-weight:400; color:var(--ink); margin-bottom:1mm; }
+  .workshop-info h1 em { color:var(--gold); font-style:italic; }
+  .workshop-info .subtitle { font-size:9.5pt; color:var(--midGrey); }
+  h2 { font-family:Georgia,serif; font-size:13pt; font-weight:400; color:var(--ink); margin-top:7mm; margin-bottom:3mm; padding-bottom:1.5mm; border-bottom:1px solid rgba(28,28,28,0.1); }
+  h3 { font-size:9.5pt; font-weight:500; color:var(--ink); margin-top:4mm; margin-bottom:1.5mm; text-transform:uppercase; letter-spacing:0.12em; }
+  p { margin-bottom:2.5mm; font-size:10.5pt; }
+  .prompt-box { background:var(--obsidian); border-left:3px solid var(--gold); padding:4mm 5mm; margin:3mm 0 4mm 0; }
+  .prompt-box .label { font-size:7pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:1.5mm; }
+  .prompt-box p { font-family:'Courier New',monospace; font-size:9pt; color:var(--white); margin:0; line-height:1.5; }
+  .formula { background:var(--warmGrey); border-left:4px solid var(--gold); padding:4mm 5mm; margin:3mm 0 5mm 0; font-size:10.5pt; }
+  .formula strong { color:var(--gold); }
+  .steps { }
+  .step { display:flex; gap:3mm; margin-bottom:4mm; align-items:flex-start; }
+  .step-num { background:var(--gold); color:var(--obsidian); font-size:9pt; font-weight:500; width:6mm; height:6mm; min-width:6mm; display:flex; align-items:center; justify-content:center; margin-top:0.5mm; }
+  .step-content { flex:1; }
+  .step-content strong { display:block; font-size:10pt; margin-bottom:0.5mm; }
+  .step-content p { margin:0; font-size:9.5pt; color:var(--midGrey); }
+  .notes-area { border:1px dashed rgba(28,28,28,0.2); border-left:3px solid var(--gold); min-height:20mm; padding:3mm; margin-top:3mm; background:var(--cream); }
+  .notes-area .label { font-size:7.5pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--midGrey); margin-bottom:2mm; }
+  .platform-badge { display:inline-block; padding:1mm 3mm; font-size:8pt; font-weight:500; background:var(--gold); color:var(--obsidian); margin-right:2mm; margin-bottom:2mm; }
+  .footer { margin-top:8mm; padding-top:3mm; border-top:1px solid rgba(28,28,28,0.1); display:flex; justify-content:space-between; font-size:7.5pt; color:var(--midGrey); letter-spacing:0.1em; }
+  @media print { body { background:white; } .page { width:100%; margin:0; padding:12mm 15mm; } .header { margin:-12mm -15mm 0 -15mm; } .print-btn { display:none; } }
+
+  /* ── Interactive input styles ── */
+  [contenteditable="true"] { outline:none; cursor:text; transition:background 0.15s, box-shadow 0.15s; }
+  [contenteditable="true"]:hover { background:rgba(245,166,35,0.04); }
+  [contenteditable="true"]:focus { background:rgba(245,166,35,0.07); box-shadow:inset 0 0 0 1px rgba(245,166,35,0.45); }
+  [contenteditable="true"]:empty::before { content:attr(data-placeholder); color:var(--midGrey); font-style:italic; font-size:9pt; pointer-events:none; }
+  td[contenteditable="true"] { min-height:8mm; vertical-align:top; }
+  .notes-area { border:1px dashed rgba(28,28,28,0.2); border-left:3px solid var(--gold); min-height:20mm; padding:3mm; margin-top:3mm; background:var(--cream); display:flex; flex-direction:column; cursor:text; }
+  .notes-area .label { font-size:7.5pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--midGrey); margin-bottom:2mm; flex-shrink:0; cursor:default; }
+  .notes-input { flex:1; min-height:14mm; font-size:10pt; line-height:1.6; color:var(--ink); padding-top:1mm; }
+  .prompt-box p[contenteditable="true"] { white-space:pre-wrap; }
+  .prompt-box p[contenteditable="true"]:hover { background:rgba(245,166,35,0.06); }
+  .prompt-box p[contenteditable="true"]:focus { background:rgba(245,166,35,0.1); box-shadow:inset 0 0 0 1px rgba(245,166,35,0.4); }
+  .prompt-box p[contenteditable="true"]:empty::before { color:rgba(255,255,255,0.4); }
+  .print-btn { position:fixed; bottom:20px; right:20px; background:var(--gold); color:var(--obsidian); border:none; padding:9px 20px; font-family:'DM Sans',Calibri,sans-serif; font-size:9.5pt; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; z-index:999; box-shadow:0 2px 8px rgba(0,0,0,0.18); }
+  .print-btn:hover { opacity:0.82; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">Raut<span class="a">a</span>k<span class="i">i</span></div>
+    <div class="header-meta">CAS AI Hands-On<br>Samstag, 25. April 2026 &nbsp;·&nbsp; 11:00 – 12:15</div>
+  </div>
+  <div class="gold-rule"></div>
+
+  <div class="workshop-info">
+    <div class="tag">Block 4 &nbsp;·&nbsp; Handout &nbsp;·&nbsp; Tag 1</div>
+    <h1>Euren ersten <em>KI-Agenten</em> bauen</h1>
+    <div class="subtitle">Out-of-the-Box KI-Agenten &nbsp;·&nbsp; Dr. Harry Witzthum</div>
+  </div>
+
+  <!-- Plattform wählen -->
+  <h2>Schritt 1 — Plattform wählen</h2>
+  <p>Wählt eine der folgenden Plattformen für euren Agenten. Nutzt das, was ihr schon habt:</p>
+
+  <div style="margin:3mm 0 5mm 0;">
+    <span class="platform-badge">ChatGPT GPTs</span>
+    <span class="platform-badge">Claude Projects</span>
+    <span class="platform-badge">Gemini Gems</span>
+    <span class="platform-badge">Copilot Studio</span>
+  </div>
+
+  <p style="font-size:9.5pt; color:var(--midGrey);">Empfehlung: <strong>ChatGPT GPT</strong> für maximale Flexibilität, <strong>Claude Project</strong> für Analysaufgaben und lange Dokumente, <strong>Gemini Gem</strong> wenn ihr Google Workspace nutzt.</p>
+
+  <!-- System-Prompt Vorlage -->
+  <h2>Schritt 2 — System-Prompt schreiben (Vorlage)</h2>
+  <p>Nutzt diese Struktur als Ausgangspunkt und füllt sie mit eurem Use Case:</p>
+
+  <div class="prompt-box">
+    <div class="label">System-Prompt Vorlage — CONTEXT · ROLE · TASK · CONSTRAINTS · FORMAT</div>
+    <p contenteditable="true" data-placeholder="Vorlage hier bearbeiten…">## CONTEXT
+Du wirst eingesetzt in [Organisation / Team / Bereich].
+Die Nutzenden sind [Beschreibung der Zielgruppe].
+Hintergrundinformationen: [relevante Fakten zum Kontext]
+
+## ROLE
+Du bist [Name des Agenten], ein spezialisierter Assistent für [Fachgebiet].
+Dein Ton ist [formell / locker / direkt / beratend].
+
+## TASK
+Deine Hauptaufgabe ist es, [Hauptaufgabe in 1-2 Sätzen].
+Du hilfst insbesondere bei: [3-5 konkrete Aufgabentypen]
+
+## CONSTRAINTS
+- Antworte ausschliesslich auf Basis der hochgeladenen Dokumente
+- Sage klar, wenn du etwas nicht weisst
+- Gib keine rechtliche / medizinische / finanzielle Beratung
+- [Weitere Einschränkungen für euren Use Case]
+
+## FORMAT
+- Antworte auf Deutsch, prägnant und strukturiert
+- Nutze Aufzählungen für Listen
+- Maximale Antwortlänge: [kurz / mittel / ausführlich je nach Frage]</p>
+  </div>
+
+  <!-- Aufgaben -->
+  <h2>Euer Agenten-Bauprojekt (75 Min.)</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Use Case definieren &amp; Plattform wählen (10 Min.)</strong>
+        <p>Was soll euer Agent können? Für wen? Füllt «Mein Use Case» unten aus.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>System-Prompt schreiben (15 Min.)</strong>
+        <p>Nutzt die Vorlage oben. Formuliert alle 5 Sektionen. Tipp: Beginnt mit ROLE und TASK.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>Wissensquellen hochladen (10 Min.)</strong>
+        <p>Max. 3–5 relevante Dateien. PDFs, FAQs, Richtlinien. Keine personenbezogenen Daten!</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>5 Testfälle eingeben &amp; dokumentieren (25 Min.)</strong>
+        <p>Typische Anfragen eurer Zielgruppe. Dokumentiert: Was klappt? Was hakt? Prompt 3× iterieren.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <strong>Tandem-Präsentation (15 Min.)</strong>
+        <p>Zeigt euren Agenten einem Partner. Gebt gegenseitig Feedback: Was fehlt? Was ist gut?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arbeitsbereich -->
+  <h2>Mein Agenten-Canvas</h2>
+
+  <h3>Mein Use Case</h3>
+  <table style="width:100%; border-collapse:collapse; font-size:9.5pt;">
+    <tr><td style="width:30%; padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Name des Agenten</td><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); height:9mm;" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Zielgruppe / Nutzende</td><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Hauptaufgabe</td><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); height:14mm;" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Gewählte Plattform</td><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Hochgeladene Quellen</td><td style="padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); height:12mm;" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+  </table>
+
+  <h3 style="margin-top:5mm;">5 Testfälle — Ergebnisse</h3>
+  <table style="width:100%; border-collapse:collapse; font-size:9pt;">
+    <thead>
+      <tr>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); text-align:left; width:40%;">Testfrage / Prompt</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); text-align:left; width:35%;">Antwort / Ergebnis</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--gold); color:var(--obsidian); text-align:center; width:12%;">Note 1–6</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); text-align:left;">Anpassung nötig?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); height:10mm;" contenteditable="true" data-placeholder="Testfrage / Prompt…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Antwort / Ergebnis…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Anpassung…"></td></tr>
+      <tr><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); height:10mm;" contenteditable="true" data-placeholder="Testfrage / Prompt…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Antwort / Ergebnis…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Anpassung…"></td></tr>
+      <tr><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); height:10mm;" contenteditable="true" data-placeholder="Testfrage / Prompt…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Antwort / Ergebnis…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Anpassung…"></td></tr>
+      <tr><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); height:10mm;" contenteditable="true" data-placeholder="Testfrage / Prompt…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Antwort / Ergebnis…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Anpassung…"></td></tr>
+      <tr><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); height:10mm;" contenteditable="true" data-placeholder="Testfrage / Prompt…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Antwort / Ergebnis…"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1); text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="padding:3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Anpassung…"></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:5mm;">Was hat gut funktioniert? / Wo stiess der Agent an Grenzen?</h3>
+  <div class="notes-area" style="min-height:20mm;">
+    <div class="label">Erkenntnisse &amp; Optimierungsideen:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <h3 style="margin-top:4mm;">Peer-Feedback (Tandem)</h3>
+  <div class="notes-area" style="min-height:16mm;">
+    <div class="label">Feedback von Partner/Partnerin / Was würde im Alltag fehlen:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <div class="footer">
+    <span>CAS AI Hands-On &nbsp;·&nbsp; Out-of-the-Box KI-Agenten &nbsp;·&nbsp; Block 4 (Tag 1)</span>
+    <span>rautaki.ch &nbsp;·&nbsp; 25. April 2026</span>
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">Drucken / PDF</button>
+
+<script>
+  const SAVE_KEY = 'handout_ki_agenten_block4';
+
+  function saveAll() {
+    const data = {};
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+      data['f' + i] = el.innerHTML;
+    });
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadAll() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+        if (data['f' + i] !== undefined && data['f' + i] !== '') {
+          el.innerHTML = data['f' + i];
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadAll();
+    document.querySelectorAll('.notes-area').forEach(function(area) {
+      area.addEventListener('click', function(e) {
+        var input = area.querySelector('.notes-input');
+        if (input && e.target !== input) input.focus();
+      });
+    });
+  });
+  document.addEventListener('input', saveAll);
+</script>
+</body>
+</html>
