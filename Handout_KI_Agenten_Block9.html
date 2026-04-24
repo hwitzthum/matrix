@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handout – Out-of-the-Box KI-Agenten – Block 9</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
+  :root { --gold:#F5A623; --obsidian:#0A0A0A; --ink:#1C1C1C; --cream:#F4F2EE; --white:#FAFAFA; --warmGrey:#E8E5DF; --midGrey:#9A9590; --charcoal:#111111; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',Calibri,sans-serif; background:var(--cream); color:var(--ink); font-size:11pt; line-height:1.6; }
+  .page { width:210mm; min-height:297mm; margin:0 auto; padding:16mm 18mm; background:var(--white); }
+  .header { background:var(--obsidian); margin:-16mm -18mm 0 -18mm; padding:10mm 18mm; display:flex; align-items:center; justify-content:space-between; }
+  .logo { font-family:Georgia,serif; font-size:22pt; font-weight:400; color:var(--white); }
+  .logo .a, .logo .i { color:var(--gold); }
+  .header-meta { text-align:right; font-size:8pt; color:rgba(255,255,255,0.45); letter-spacing:0.12em; text-transform:uppercase; line-height:1.8; }
+  .gold-rule { height:3px; background:linear-gradient(to right,var(--gold),transparent); margin-bottom:10mm; }
+  .workshop-info { border-left:3px solid var(--gold); padding:3mm 5mm; margin-bottom:8mm; background:var(--cream); }
+  .workshop-info .tag { font-size:7.5pt; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:var(--midGrey); margin-bottom:1.5mm; }
+  .workshop-info h1 { font-family:Georgia,serif; font-size:17pt; font-weight:400; color:var(--ink); margin-bottom:1mm; }
+  .workshop-info h1 em { color:var(--gold); font-style:italic; }
+  .workshop-info .subtitle { font-size:9.5pt; color:var(--midGrey); }
+  h2 { font-family:Georgia,serif; font-size:13pt; font-weight:400; color:var(--ink); margin-top:7mm; margin-bottom:3mm; padding-bottom:1.5mm; border-bottom:1px solid rgba(28,28,28,0.1); }
+  h3 { font-size:9.5pt; font-weight:500; color:var(--ink); margin-top:4mm; margin-bottom:1.5mm; text-transform:uppercase; letter-spacing:0.12em; }
+  p { margin-bottom:2.5mm; font-size:10.5pt; }
+  .steps { }
+  .step { display:flex; gap:3mm; margin-bottom:4mm; align-items:flex-start; }
+  .step-num { background:var(--gold); color:var(--obsidian); font-size:9pt; font-weight:500; width:6mm; height:6mm; min-width:6mm; display:flex; align-items:center; justify-content:center; margin-top:0.5mm; }
+  .step-content { flex:1; }
+  .step-content strong { display:block; font-size:10pt; margin-bottom:0.5mm; }
+  .step-content p { margin:0; font-size:9.5pt; color:var(--midGrey); }
+  .notes-area { border:1px dashed rgba(28,28,28,0.2); border-left:3px solid var(--gold); min-height:20mm; padding:3mm; margin-top:3mm; background:var(--cream); }
+  .notes-area .label { font-size:7.5pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--midGrey); margin-bottom:2mm; }
+  .canvas { border:1px solid rgba(28,28,28,0.1); }
+  .canvas-row { display:grid; grid-template-columns:1fr 1fr; }
+  .canvas-cell { padding:3mm 4mm; border:1px solid rgba(28,28,28,0.1); min-height:28mm; }
+  .canvas-cell h4 { font-family:Georgia,serif; font-size:10pt; font-weight:400; color:var(--ink); margin-bottom:1.5mm; }
+  .canvas-cell .cell-num { font-size:7.5pt; font-weight:500; color:var(--gold); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:1mm; }
+  .canvas-cell .hint { font-size:8.5pt; color:var(--midGrey); }
+  .smart-table { width:100%; border-collapse:collapse; font-size:9.5pt; }
+  .smart-table th { padding:2.5mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); text-align:left; }
+  .smart-table td { padding:3mm; border:1px solid rgba(28,28,28,0.1); height:12mm; vertical-align:top; }
+  .smart-table td:first-child { background:var(--warmGrey); font-weight:500; }
+  .footer { margin-top:8mm; padding-top:3mm; border-top:1px solid rgba(28,28,28,0.1); display:flex; justify-content:space-between; font-size:7.5pt; color:var(--midGrey); letter-spacing:0.1em; }
+  @media print { body { background:white; } .page { width:100%; margin:0; padding:12mm 15mm; } .header { margin:-12mm -15mm 0 -15mm; } .print-btn { display:none; } }
+
+  /* ── Interactive input styles ── */
+  [contenteditable="true"] { outline:none; cursor:text; transition:background 0.15s, box-shadow 0.15s; }
+  [contenteditable="true"]:hover { background:rgba(245,166,35,0.04); }
+  [contenteditable="true"]:focus { background:rgba(245,166,35,0.07); box-shadow:inset 0 0 0 1px rgba(245,166,35,0.45); }
+  [contenteditable="true"]:empty::before { content:attr(data-placeholder); color:var(--midGrey); font-style:italic; font-size:9pt; pointer-events:none; }
+  td[contenteditable="true"] { vertical-align:top; }
+  .notes-area { border:1px dashed rgba(28,28,28,0.2); border-left:3px solid var(--gold); min-height:20mm; padding:3mm; margin-top:3mm; background:var(--cream); display:flex; flex-direction:column; cursor:text; }
+  .notes-area .label { font-size:7.5pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--midGrey); margin-bottom:2mm; flex-shrink:0; cursor:default; }
+  .notes-input { flex:1; min-height:14mm; font-size:10pt; line-height:1.6; color:var(--ink); padding-top:1mm; }
+  .canvas-cell { border:1px solid rgba(28,28,28,0.1); min-height:28mm; padding:3mm 4mm; display:flex; flex-direction:column; }
+  .canvas-cell h4 { font-family:Georgia,serif; font-size:10pt; font-weight:400; color:var(--ink); margin-bottom:1.5mm; }
+  .canvas-cell .cell-num { font-size:7.5pt; font-weight:500; color:var(--gold); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:1mm; flex-shrink:0; }
+  .canvas-cell .hint { font-size:8.5pt; color:var(--midGrey); flex-shrink:0; margin-bottom:2mm; }
+  .canvas-input { flex:1; min-height:12mm; font-size:10pt; line-height:1.6; color:var(--ink); }
+  .print-btn { position:fixed; bottom:20px; right:20px; background:var(--gold); color:var(--obsidian); border:none; padding:9px 20px; font-family:'DM Sans',Calibri,sans-serif; font-size:9.5pt; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; z-index:999; box-shadow:0 2px 8px rgba(0,0,0,0.18); }
+  .print-btn:hover { opacity:0.82; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">Raut<span class="a">a</span>k<span class="i">i</span></div>
+    <div class="header-meta">CAS AI Hands-On<br>Freitag, 8. Mai 2026 &nbsp;·&nbsp; 15:00 – 16:30</div>
+  </div>
+  <div class="gold-rule"></div>
+
+  <div class="workshop-info">
+    <div class="tag">Block 9 &nbsp;·&nbsp; Handout &nbsp;·&nbsp; Tag 2</div>
+    <h1>Begleitetes Anwenden — <em>Euer Use Case</em></h1>
+    <div class="subtitle">Out-of-the-Box KI-Agenten &nbsp;·&nbsp; Dr. Harry Witzthum</div>
+  </div>
+
+  <!-- Ablauf -->
+  <h2>Ablauf Block 9 (90 Min.)</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>Use-Case-Canvas ausfüllen &amp; mit Trainer besprechen (15 Min.)</strong><p>Alle 4 Felder des Canvas unten ausfüllen. Trainer gibt direkt Feedback.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>Agenten konfigurieren (35 Min.)</strong><p>Plattform wählen, System-Prompt schreiben, Quellen hochladen. Coaching durch Trainer und Co-Facilitator in Impact-Teams.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>Testen &amp; iterieren (25 Min.)</strong><p>5 Testfälle durchlaufen. Grenzen dokumentieren. System-Prompt 3× anpassen.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content"><strong>Impact-Gruppen Präsentation (15 Min.)</strong><p>Jede Gruppe präsentiert 3 Min. Feedback vom Trainer und Plenum.</p></div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <h2>Mein Use-Case-Canvas</h2>
+  <div class="canvas">
+    <div class="canvas-row">
+      <div class="canvas-cell" onclick="var i=this.querySelector('.canvas-input');if(i&&event.target!==i)i.focus();" style="cursor:text;">
+        <div class="cell-num">1 — Meine Use Cases</div>
+        <h4>Welches Problem / Welche Aufgabe?</h4>
+        <div class="hint">Welche konkrete Aufgabe soll der Agent übernehmen? Für wen?</div>
+        <div class="canvas-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+      </div>
+      <div class="canvas-cell" onclick="var i=this.querySelector('.canvas-input');if(i&&event.target!==i)i.focus();" style="cursor:text;">
+        <div class="cell-num">2 — Empfohlene Plattform &amp; Modell</div>
+        <h4>Welche Plattform, welches Modell?</h4>
+        <div class="hint">GPT / Claude / Gem / Copilot Studio — Begründung?</div>
+        <div class="canvas-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+      </div>
+    </div>
+    <div class="canvas-row">
+      <div class="canvas-cell" onclick="var i=this.querySelector('.canvas-input');if(i&&event.target!==i)i.focus();" style="cursor:text;">
+        <div class="cell-num">3 — Datenschutz-Setup</div>
+        <h4>Cloud, Hybrid oder On-Premise?</h4>
+        <div class="hint">Welche Daten kommen rein? DSGVO-relevant? Schutzmassnahmen?</div>
+        <div class="canvas-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+      </div>
+      <div class="canvas-cell" onclick="var i=this.querySelector('.canvas-input');if(i&&event.target!==i)i.focus();" style="cursor:text;">
+        <div class="cell-num">4 — Nächster Schritt (SMART)</div>
+        <h4>Was tue ich bis wann konkret?</h4>
+        <div class="hint">Spezifisch · Messbar · Erreichbar · Relevant · Terminiert</div>
+        <div class="canvas-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System-Prompt -->
+  <h2>Mein System-Prompt</h2>
+  <table class="smart-table">
+    <tr><td style="width:20%;">CONTEXT</td><td contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td>ROLE</td><td contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td>TASK</td><td style="height:18mm;" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td>CONSTRAINTS</td><td contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td>FORMAT</td><td contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+  </table>
+
+  <!-- Testprotokoll -->
+  <h2>Testprotokoll — 5 Testfälle</h2>
+  <table style="width:100%; border-collapse:collapse; font-size:9pt;">
+    <thead>
+      <tr>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); width:38%;">Testfall / Anfrage</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white); width:30%;">Ergebnis</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--gold); color:var(--obsidian); width:10%; text-align:center;">Note</th>
+        <th style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); background:var(--obsidian); color:var(--white);">Grenze / Verbesserung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; height:11mm;" contenteditable="true" data-placeholder="Testfall / Anfrage…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Ergebnis…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Grenze / Verbesserung…"></td></tr>
+      <tr><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; height:11mm;" contenteditable="true" data-placeholder="Testfall / Anfrage…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Ergebnis…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Grenze / Verbesserung…"></td></tr>
+      <tr><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; height:11mm;" contenteditable="true" data-placeholder="Testfall / Anfrage…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Ergebnis…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Grenze / Verbesserung…"></td></tr>
+      <tr><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; height:11mm;" contenteditable="true" data-placeholder="Testfall / Anfrage…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Ergebnis…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Grenze / Verbesserung…"></td></tr>
+      <tr><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; height:11mm;" contenteditable="true" data-placeholder="Testfall / Anfrage…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Ergebnis…"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm; text-align:center;" contenteditable="true" data-placeholder="1–6"></td><td style="border:1px solid rgba(28,28,28,0.1); padding:3mm;" contenteditable="true" data-placeholder="Grenze / Verbesserung…"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Grenzen & Nächste Schritte -->
+  <h3 style="margin-top:5mm;">Wo endet Out-of-the-Box? — Grenzen meines Agenten</h3>
+  <div class="notes-area" style="min-height:18mm;">
+    <div class="label">Was könnte mein Agent nicht lösen? Was bräuchte Custom-Entwicklung?</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <h3 style="margin-top:4mm;">Mein konkreter nächster Schritt (SMART)</h3>
+  <div class="notes-area" style="min-height:18mm;">
+    <div class="label">Was tue ich in den nächsten 2 Wochen konkret? Bis wann? Mit wem?</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <div class="footer">
+    <span>CAS AI Hands-On &nbsp;·&nbsp; Out-of-the-Box KI-Agenten &nbsp;·&nbsp; Block 9 (Tag 2)</span>
+    <span>rautaki.ch &nbsp;·&nbsp; 8. Mai 2026</span>
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">Drucken / PDF</button>
+
+<script>
+  const SAVE_KEY = 'handout_ki_agenten_block9';
+
+  function saveAll() {
+    const data = {};
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+      data['f' + i] = el.innerHTML;
+    });
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadAll() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+        if (data['f' + i] !== undefined && data['f' + i] !== '') {
+          el.innerHTML = data['f' + i];
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadAll();
+    document.querySelectorAll('.notes-area').forEach(function(area) {
+      area.addEventListener('click', function(e) {
+        var input = area.querySelector('.notes-input');
+        if (input && e.target !== input) input.focus();
+      });
+    });
+  });
+  document.addEventListener('input', saveAll);
+</script>
+</body>
+</html>
