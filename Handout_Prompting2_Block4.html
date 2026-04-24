@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handout – Prompting like a Pro (Teil 2) – Block 4</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
+  :root {
+    --gold:     #F5A623;
+    --obsidian: #0A0A0A;
+    --ink:      #1C1C1C;
+    --cream:    #F4F2EE;
+    --white:    #FAFAFA;
+    --warmGrey: #E8E5DF;
+    --midGrey:  #9A9590;
+    --charcoal: #111111;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', Calibri, sans-serif; background: var(--cream); color: var(--ink); font-size: 11pt; line-height: 1.6; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 16mm 18mm 16mm 18mm; background: var(--white); }
+  .header { background: var(--obsidian); margin: -16mm -18mm 0 -18mm; padding: 10mm 18mm; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: Georgia, serif; font-size: 22pt; font-weight: 400; color: var(--white); }
+  .logo .a, .logo .i { color: var(--gold); }
+  .header-meta { text-align: right; font-size: 8pt; color: rgba(255,255,255,0.45); letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.8; }
+  .gold-rule { height: 3px; background: linear-gradient(to right, var(--gold), transparent); margin-bottom: 10mm; }
+  .workshop-info { border-left: 3px solid var(--gold); padding: 3mm 5mm; margin-bottom: 8mm; background: var(--cream); }
+  .workshop-info .tag { font-size: 7.5pt; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--midGrey); margin-bottom: 1.5mm; }
+  .workshop-info h1 { font-family: Georgia, serif; font-size: 17pt; font-weight: 400; color: var(--ink); margin-bottom: 1mm; }
+  .workshop-info h1 em { color: var(--gold); font-style: italic; }
+  .workshop-info .subtitle { font-size: 9.5pt; color: var(--midGrey); }
+  h2 { font-family: Georgia, serif; font-size: 13pt; font-weight: 400; color: var(--ink); margin-top: 7mm; margin-bottom: 3mm; padding-bottom: 1.5mm; border-bottom: 1px solid rgba(28,28,28,0.1); }
+  h3 { font-size: 9.5pt; font-weight: 500; color: var(--ink); margin-top: 4mm; margin-bottom: 1.5mm; text-transform: uppercase; letter-spacing: 0.12em; }
+  p { margin-bottom: 2.5mm; font-size: 10.5pt; }
+  .prompt-box { background: var(--obsidian); border-left: 3px solid var(--gold); padding: 4mm 5mm; margin: 3mm 0 4mm 0; }
+  .prompt-box .label { font-size: 7pt; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5mm; }
+  .prompt-box p { font-family: 'Courier New', monospace; font-size: 9pt; color: var(--white); margin: 0; line-height: 1.5; }
+  .formula { background: var(--warmGrey); border-left: 4px solid var(--gold); padding: 4mm 5mm; margin: 3mm 0 5mm 0; font-size: 10.5pt; }
+  .formula strong { color: var(--gold); }
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 3mm; margin-bottom: 4mm; align-items: flex-start; }
+  .step-num { background: var(--gold); color: var(--obsidian); font-size: 9pt; font-weight: 500; width: 6mm; height: 6mm; min-width: 6mm; display: flex; align-items: center; justify-content: center; margin-top: 0.5mm; }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; font-size: 10pt; margin-bottom: 0.5mm; }
+  .step-content p { margin: 0; font-size: 9.5pt; color: var(--midGrey); }
+  .notes-area { border: 1px dashed rgba(28,28,28,0.2); border-left: 3px solid var(--gold); min-height: 24mm; padding: 3mm; margin-top: 3mm; background: var(--cream); }
+  .notes-area .label { font-size: 7.5pt; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--midGrey); margin-bottom: 2mm; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin: 3mm 0; }
+  .col-box { padding: 3mm 4mm; border-top: 2px solid var(--gold); background: var(--warmGrey); }
+  .col-box h4 { font-family: Georgia, serif; font-size: 10.5pt; font-weight: 400; margin-bottom: 2mm; }
+  .col-box ul { padding-left: 4mm; }
+  .col-box li { font-size: 9.5pt; margin-bottom: 1mm; }
+  .footer { margin-top: 8mm; padding-top: 3mm; border-top: 1px solid rgba(28,28,28,0.1); display: flex; justify-content: space-between; font-size: 7.5pt; color: var(--midGrey); letter-spacing: 0.1em; }
+  @media print { body { background: white; } .page { width: 100%; margin: 0; padding: 12mm 15mm; } .header { margin: -12mm -15mm 0 -15mm; } .print-btn { display: none; } }
+
+  /* ── Interactive input styles ── */
+  [contenteditable="true"] { outline: none; cursor: text; transition: background 0.15s, box-shadow 0.15s; }
+  [contenteditable="true"]:hover { background: rgba(245,166,35,0.04); }
+  [contenteditable="true"]:focus { background: rgba(245,166,35,0.07); box-shadow: inset 0 0 0 1px rgba(245,166,35,0.45); }
+  [contenteditable="true"]:empty::before { content: attr(data-placeholder); color: var(--midGrey); font-style: italic; font-size: 9pt; pointer-events: none; }
+  td[contenteditable="true"] { min-height: 8mm; }
+  .notes-input { min-height: 16mm; font-size: 10pt; line-height: 1.6; color: var(--ink); padding-top: 1.5mm; }
+  .print-btn { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: var(--obsidian); border: none; padding: 9px 20px; font-family: 'DM Sans', Calibri, sans-serif; font-size: 9.5pt; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; z-index: 999; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+  .print-btn:hover { opacity: 0.82; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">Raut<span class="a">a</span>k<span class="i">i</span></div>
+    <div class="header-meta">CAS AI Hands-On<br>Freitag, 24. April 2026 &nbsp;·&nbsp; 15:10 – 16:00</div>
+  </div>
+  <div class="gold-rule"></div>
+
+  <div class="workshop-info">
+    <div class="tag">Block 4 &nbsp;·&nbsp; Handout</div>
+    <h1>NotebookLM &amp; <em>Text-to-Video</em></h1>
+    <div class="subtitle">Prompting like a Pro (Teil 2) &nbsp;·&nbsp; Dr. Harry Witzthum</div>
+  </div>
+
+  <!-- TEIL A: NotebookLM -->
+  <h2>Teil A — Google NotebookLM</h2>
+  <p>NotebookLM macht aus euren Quellen einen interaktiven Wissensassistenten. Mit der richtigen Promptingstrategie holt ihr das Maximum heraus.</p>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Effektive Abfrage-Prompts</h4>
+      <ul>
+        <li>«Erkläre mir [Konzept] in 3 Sätzen»</li>
+        <li>«Was sind die 5 wichtigsten Erkenntnisse?»</li>
+        <li>«Vergleiche [A] und [B] in meinen Quellen»</li>
+        <li>«Erstelle eine Tabelle mit [Kriterium]»</li>
+        <li>«Was fehlt in meinen Quellen zu [Thema]?»</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Audio Overview anpassen</h4>
+      <ul>
+        <li>Ton: formell / locker / akademisch</li>
+        <li>Länge: kurze Zusammenfassung / Tiefgang</li>
+        <li>Fokus: bestimmtes Kapitel / Thema betonen</li>
+        <li>Niveau: Experte / Einsteiger / Executive</li>
+        <li>Interaktiv: Frage stellen während Playback</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Aufgabe A — NotebookLM (20 Min.)</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Quellen hochladen</strong>
+        <p>Ladet 2–3 Quellen zu einem eurer Arbeitsthemen hoch (PDF, Website-URL, Google Doc).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>Audio Overview erstellen</strong>
+        <p>Konfiguriert den Ton (z.B. «für Führungskräfte, prägnant, 5 Minuten»). Erstellt das Audio und hört 2 Min. hinein.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>3 gezielte Fragen stellen</strong>
+        <p>Stellt 3 verschiedene Fragen nach den Prompt-Mustern oben. Notiert die Qualität der Antworten.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Meine NotebookLM-Erfahrungen</h3>
+  <div class="notes-area">
+    <div class="label">Thema meines Notebooks / Quellen:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+  <div class="notes-area" style="min-height:20mm;">
+    <div class="label">Beste Prompt-Antwort &amp; Überraschungen:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <!-- TEIL B: Text-to-Video -->
+  <h2>Teil B — Text-to-Video: Sora 2 &amp; Veo 3</h2>
+
+  <div class="formula">
+    <strong>Video-Prompt-Formel:</strong> [Subjekt + Kontext]&nbsp; · &nbsp;[Kamerabewegung]&nbsp; · &nbsp;[Physik / Action]&nbsp; · &nbsp;[Dialog / Ton]
+  </div>
+
+  <h3>Beispiel-Prompts</h3>
+
+  <div class="prompt-box">
+    <div class="label">Sora 2 — Geschäftliches Szenario</div>
+    <p>A confident project manager presents at a whiteboard in a modern Swiss office.
+Camera: slow push-in from medium to close-up over 8 seconds.
+Physics: she writes on the board, marker squeaks slightly, natural hand movement.
+Audio: ambient office sounds, her voice says "Die Lösung ist einfacher als gedacht."</p>
+  </div>
+
+  <div class="prompt-box">
+    <div class="label">Veo 3 — Produktvideo</div>
+    <p>A sleek laptop opens on a minimalist oak desk, morning light streams through windows.
+Camera: macro close-up of screen switching on, then crane shot pulling back to reveal workspace.
+Physics: gentle depth of field, natural reflections on screen surface, warm rim light.
+Duration: 8 seconds, no dialogue, atmospheric ambient sound.</p>
+  </div>
+
+  <h3>Aufgabe B — Text-to-Video (20 Min.)</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Video-Prompt schreiben</strong>
+        <p>Nutzt die Formel für einen eurer Use Cases (Produkt, Szene, Konzeptvideo).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>In Sora 2 ODER Veo 3 generieren</strong>
+        <p>Generiert das Video und schaut es gemeinsam an. Screenshot des Prompts und Ergebnis-Link notieren.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>Reflexion im Tandem</strong>
+        <p>Was überraschte euch? Wo sieht man Artefakte? Was würde für echte Projekte noch fehlen?</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Mein Video-Prompt</h3>
+  <table style="width:100%; border-collapse:collapse; font-size:9.5pt;">
+    <tr><td style="width:22%; padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Subjekt + Kontext</td><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); height:8mm;" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Kamerabewegung</td><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Physik / Action</td><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+    <tr><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1); font-weight:500; background:var(--warmGrey);">Dialog / Ton</td><td style="padding:2mm 3mm; border:1px solid rgba(28,28,28,0.1);" contenteditable="true" data-placeholder="Hier eingeben…"></td></tr>
+  </table>
+
+  <h3 style="margin-top:5mm;">Beobachtungen &amp; Reflexion</h3>
+  <div class="notes-area" style="min-height:24mm;">
+    <div class="label">Was hat gut funktioniert? Wo stösst das Tool an Grenzen?</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <div class="footer">
+    <span>CAS AI Hands-On &nbsp;·&nbsp; Prompting like a Pro (Teil 2) &nbsp;·&nbsp; Block 4</span>
+    <span>rautaki.ch &nbsp;·&nbsp; 24. April 2026</span>
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">Drucken / PDF</button>
+
+<script>
+  const SAVE_KEY = 'handout_prompting2_block4';
+
+  function saveAll() {
+    const data = {};
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+      data['f' + i] = el.innerHTML;
+    });
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadAll() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+        if (data['f' + i] !== undefined && data['f' + i] !== '') {
+          el.innerHTML = data['f' + i];
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', loadAll);
+  document.addEventListener('input', saveAll);
+</script>
+</body>
+</html>
