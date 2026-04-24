@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handout – Prompting like a Pro (Teil 2) – Block 5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
+  :root { --gold:#F5A623; --obsidian:#0A0A0A; --ink:#1C1C1C; --cream:#F4F2EE; --white:#FAFAFA; --warmGrey:#E8E5DF; --midGrey:#9A9590; --charcoal:#111111; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',Calibri,sans-serif; background:var(--cream); color:var(--ink); font-size:11pt; line-height:1.6; }
+  .page { width:210mm; min-height:297mm; margin:0 auto; padding:16mm 18mm; background:var(--white); }
+  .header { background:var(--obsidian); margin:-16mm -18mm 0 -18mm; padding:10mm 18mm; display:flex; align-items:center; justify-content:space-between; }
+  .logo { font-family:Georgia,serif; font-size:22pt; font-weight:400; color:var(--white); }
+  .logo .a, .logo .i { color:var(--gold); }
+  .header-meta { text-align:right; font-size:8pt; color:rgba(255,255,255,0.45); letter-spacing:0.12em; text-transform:uppercase; line-height:1.8; }
+  .gold-rule { height:3px; background:linear-gradient(to right,var(--gold),transparent); margin-bottom:10mm; }
+  .workshop-info { border-left:3px solid var(--gold); padding:3mm 5mm; margin-bottom:8mm; background:var(--cream); }
+  .workshop-info .tag { font-size:7.5pt; font-weight:500; letter-spacing:0.22em; text-transform:uppercase; color:var(--midGrey); margin-bottom:1.5mm; }
+  .workshop-info h1 { font-family:Georgia,serif; font-size:17pt; font-weight:400; color:var(--ink); margin-bottom:1mm; }
+  .workshop-info h1 em { color:var(--gold); font-style:italic; }
+  .workshop-info .subtitle { font-size:9.5pt; color:var(--midGrey); }
+  h2 { font-family:Georgia,serif; font-size:13pt; font-weight:400; color:var(--ink); margin-top:7mm; margin-bottom:3mm; padding-bottom:1.5mm; border-bottom:1px solid rgba(28,28,28,0.1); }
+  h3 { font-size:9.5pt; font-weight:500; color:var(--ink); margin-top:4mm; margin-bottom:1.5mm; text-transform:uppercase; letter-spacing:0.12em; }
+  p { margin-bottom:2.5mm; font-size:10.5pt; }
+  .prompt-box { background:var(--obsidian); border-left:3px solid var(--gold); padding:4mm 5mm; margin:3mm 0 4mm 0; }
+  .prompt-box .label { font-size:7pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:1.5mm; }
+  .prompt-box p { font-family:'Courier New',monospace; font-size:9pt; color:var(--white); margin:0; line-height:1.5; }
+  .steps { }
+  .step { display:flex; gap:3mm; margin-bottom:4mm; align-items:flex-start; }
+  .step-num { background:var(--gold); color:var(--obsidian); font-size:9pt; font-weight:500; width:6mm; height:6mm; min-width:6mm; display:flex; align-items:center; justify-content:center; margin-top:0.5mm; }
+  .step-content { flex:1; }
+  .step-content strong { display:block; font-size:10pt; margin-bottom:0.5mm; }
+  .step-content p { margin:0; font-size:9.5pt; color:var(--midGrey); }
+  .notes-area { border:1px dashed rgba(28,28,28,0.2); border-left:3px solid var(--gold); min-height:20mm; padding:3mm; margin-top:3mm; background:var(--cream); }
+  .notes-area .label { font-size:7.5pt; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--midGrey); margin-bottom:2mm; }
+  .app-grid { display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin:3mm 0; }
+  .app-card { border-top:2px solid var(--gold); padding:3mm 4mm; }
+  .app-card h4 { font-size:10pt; font-weight:500; margin-bottom:1.5mm; }
+  .app-card ul { padding-left:3.5mm; }
+  .app-card li { font-size:9.5pt; margin-bottom:1mm; }
+  .tip-box { background:var(--warmGrey); border-left:3px solid var(--gold); padding:3mm 4mm; margin:3mm 0; font-size:10pt; }
+  .footer { margin-top:8mm; padding-top:3mm; border-top:1px solid rgba(28,28,28,0.1); display:flex; justify-content:space-between; font-size:7.5pt; color:var(--midGrey); letter-spacing:0.1em; }
+  @media print { body { background:white; } .page { width:100%; margin:0; padding:12mm 15mm; } .header { margin:-12mm -15mm 0 -15mm; } .print-btn { display:none; } }
+
+  /* ── Interactive input styles ── */
+  [contenteditable="true"] { outline:none; cursor:text; transition:background 0.15s, box-shadow 0.15s; }
+  [contenteditable="true"]:hover { background:rgba(245,166,35,0.04); }
+  [contenteditable="true"]:focus { background:rgba(245,166,35,0.07); box-shadow:inset 0 0 0 1px rgba(245,166,35,0.45); }
+  [contenteditable="true"]:empty::before { content:attr(data-placeholder); color:var(--midGrey); font-style:italic; font-size:9pt; pointer-events:none; }
+  .notes-input { min-height:14mm; font-size:10pt; line-height:1.6; color:var(--ink); padding-top:1.5mm; }
+  .print-btn { position:fixed; bottom:20px; right:20px; background:var(--gold); color:var(--obsidian); border:none; padding:9px 20px; font-family:'DM Sans',Calibri,sans-serif; font-size:9.5pt; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; z-index:999; box-shadow:0 2px 8px rgba(0,0,0,0.18); }
+  .print-btn:hover { opacity:0.82; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">Raut<span class="a">a</span>k<span class="i">i</span></div>
+    <div class="header-meta">CAS AI Hands-On<br>Freitag, 24. April 2026 &nbsp;·&nbsp; 16:00 – 16:35</div>
+  </div>
+  <div class="gold-rule"></div>
+
+  <div class="workshop-info">
+    <div class="tag">Block 5 &nbsp;·&nbsp; Handout</div>
+    <h1>MS Copilot in der <em>Office Suite</em></h1>
+    <div class="subtitle">Prompting like a Pro (Teil 2) &nbsp;·&nbsp; Dr. Harry Witzthum</div>
+  </div>
+
+  <!-- Überblick -->
+  <h2>Copilot 2026 — Was ist neu?</h2>
+  <p>Der <strong>Agent Mode</strong> (seit Q1 2026) verwandelt Copilot von einem One-Shot-Assistenten in einen mehrstufigen Arbeitspartner. Ihr gebt ein Ziel vor — Copilot plant und führt die Schritte aus.</p>
+
+  <div class="tip-box">
+    <strong>Wichtig:</strong> Ab 15. April 2026 ist Copilot in Word, Excel und PowerPoint nur noch mit einer Microsoft 365 Copilot-Lizenz verfügbar. Kostenlose Nutzung läuft aus.
+  </div>
+
+  <!-- Prompt-Rezepte -->
+  <h2>Prompt-Rezepte nach App</h2>
+
+  <div class="app-grid">
+    <div class="app-card">
+      <h4>📄 Word</h4>
+      <ul>
+        <li>«Erstelle einen 1-seitigen Report zu /[Datei] im Executive-Style»</li>
+        <li>«Formuliere diesen Abschnitt prägnanter, max. 100 Wörter»</li>
+        <li>«Liste die 5 wichtigsten Massnahmen aus dem Dokument»</li>
+        <li>«Übersetze diesen Text ins Englische, Geschäftston»</li>
+      </ul>
+    </div>
+    <div class="app-card">
+      <h4>📊 Excel</h4>
+      <ul>
+        <li>«Erkläre mir diese SVERWEIS-Formel in einfachen Worten»</li>
+        <li>«Erstelle eine Pivot-Tabelle: Umsatz nach Region und Monat»</li>
+        <li>«Welche Trends siehst du in den Daten von Spalte B?»</li>
+        <li>«Schreibe eine Formel, die Ausreisser in Spalte D markiert»</li>
+      </ul>
+    </div>
+    <div class="app-card">
+      <h4>🎯 PowerPoint</h4>
+      <ul>
+        <li>«Erstelle 5 Folien zu [Thema] aus /[Dokument], Zielgruppe: Management»</li>
+        <li>«Welche Design-Anpassungen empfiehlst du für diese Präsentation?»</li>
+        <li>«Schreibe Sprechtexte für Folien 3–7 (max. 2 Min. je)»</li>
+        <li>«Erstelle ein Handout-Dokument aus dieser Präsentation»</li>
+      </ul>
+    </div>
+    <div class="app-card">
+      <h4>📧 Outlook</h4>
+      <ul>
+        <li>«Fasse diesen E-Mail-Thread in 3 Bullet Points zusammen»</li>
+        <li>«Schlage eine freundliche, aber klare Antwort auf diese Mail vor»</li>
+        <li>«Welche offenen Fragen müssen ich vor dem Meeting klären?»</li>
+        <li>«Erstelle eine Agenda aus den letzten 5 Mails zu diesem Projekt»</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Effektive Prompt-Prinzipien -->
+  <h2>3 Prinzipien für starke Copilot-Prompts</h2>
+
+  <div class="prompt-box">
+    <div class="label">Prinzip 1 — Grounding: Referenzdatei angeben</div>
+    <p>Statt: "Schreibe einen Report"
+Besser: "Erstelle einen 2-seitigen Executive Report basierend auf /Q1_Daten.xlsx
+          Fokus: Top-3-Erkenntnisse und Handlungsempfehlungen"</p>
+  </div>
+
+  <div class="prompt-box">
+    <div class="label">Prinzip 2 — Format: Output explizit definieren</div>
+    <p>Statt: "Fasse zusammen"
+Besser: "Fasse in max. 150 Wörtern zusammen. Format: 3 nummerierte Punkte,
+          jeder mit einer Handlungsempfehlung. Ton: sachlich, direkt."</p>
+  </div>
+
+  <div class="prompt-box">
+    <div class="label">Prinzip 3 — Iteration: Copilot als Dialog-Partner</div>
+    <p>Nach dem ersten Output: "Das ist gut. Mache Punkt 2 spezifischer
+und ergänze einen konkreten Zeitplan mit Meilensteinen."</p>
+  </div>
+
+  <!-- Aufgaben -->
+  <h2>Eure Aufgaben (30 Min.)</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Word — Dokument verarbeiten (10 Min.)</strong>
+        <p>Öffnet ein echtes Arbeitsdokument (oder Demo-PDF). Lasst Copilot eine Zusammenfassung + 3 Handlungsempfehlungen erstellen. Prompt nach Prinzip 1+2.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>Outlook — E-Mail bearbeiten (10 Min.)</strong>
+        <p>Sucht einen langen E-Mail-Thread. Copilot: Zusammenfassung in 3 Punkten + Antwortvorschlag im passenden Ton. Vergleicht mit eigener Formulierung.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>PowerPoint — Folie generieren (10 Min.)</strong>
+        <p>Lasst Copilot 3 Folien zu einem eurer Use Cases erstellen. Nutzt Prinzip 1 (Referenz auf Dokument). Bewertet Qualität und passt 1× nach.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reflexion -->
+  <h3 style="margin-top:5mm;">Aufgabe 1 — Word: Mein Prompt &amp; Ergebnis</h3>
+  <div class="notes-area" style="min-height:18mm;">
+    <div class="label">Prompt verwendet / Was hat Copilot geliefert / Was musste ich anpassen:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <h3 style="margin-top:4mm;">Aufgabe 2 — Outlook: Beobachtungen</h3>
+  <div class="notes-area" style="min-height:16mm;">
+    <div class="label">Wie gut war der Antwortvorschlag? Worüber bin ich erstaunt?</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <h3 style="margin-top:4mm;">Aufgabe 3 — PowerPoint: Qualitätsbewertung</h3>
+  <div class="notes-area" style="min-height:16mm;">
+    <div class="label">Note für das Ergebnis (1–6) + Begründung + Was fehlte:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <h3 style="margin-top:4mm;">Mein wichtigstes Learning aus Block 5</h3>
+  <div class="notes-area" style="min-height:14mm;">
+    <div class="label">Den einen Copilot-Trick, den ich ab morgen nutze:</div>
+    <div class="notes-input" contenteditable="true" data-placeholder="Hier tippen…"></div>
+  </div>
+
+  <div class="footer">
+    <span>CAS AI Hands-On &nbsp;·&nbsp; Prompting like a Pro (Teil 2) &nbsp;·&nbsp; Block 5</span>
+    <span>rautaki.ch &nbsp;·&nbsp; 24. April 2026</span>
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">Drucken / PDF</button>
+
+<script>
+  const SAVE_KEY = 'handout_prompting2_block5';
+
+  function saveAll() {
+    const data = {};
+    document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+      data['f' + i] = el.innerHTML;
+    });
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadAll() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      document.querySelectorAll('[contenteditable="true"]').forEach(function(el, i) {
+        if (data['f' + i] !== undefined && data['f' + i] !== '') {
+          el.innerHTML = data['f' + i];
+        }
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', loadAll);
+  document.addEventListener('input', saveAll);
+</script>
+</body>
+</html>
