@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KI-Leadership Wirkungsrad · Rautaki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#F5A623; --gold-light:#FFD07A; --deep-gold:#B87400;
+    --obsidian:#0A0A0A; --ink:#1C1C1C; --charcoal:#111111;
+    --cream:#F4F2EE; --white:#FAFAFA; --warm-grey:#E8E5DF;
+    --mid-grey:#9A9590;
+    --hair:rgba(28,28,28,0.10);
+    --hair-dark:rgba(255,255,255,0.18);
+    --serif:Georgia,'Times New Roman',serif;
+    --ui:'DM Sans',Calibri,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--ui); font-weight:400; color:var(--ink);
+    background:var(--cream); line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold); color:var(--obsidian)}
+  a{color:var(--ink); text-decoration:underline; text-underline-offset:3px}
+  a:hover{color:var(--gold)}
+
+  /* ===================== HERO ===================== */
+  .hero{
+    position:relative; background:var(--obsidian); color:#FAFAFA;
+    padding:64px 64px 56px;
+    overflow:hidden;
+  }
+  .hero::after{
+    /* Editorial R watermark, anchored right */
+    content:"R"; position:absolute; right:-60px; top:-40px;
+    font-family:var(--serif); font-weight:400;
+    font-size:560px; line-height:.85; letter-spacing:-.05em;
+    color:rgba(255,255,255,0.04); pointer-events:none; user-select:none;
+  }
+  .hero::before{
+    content:""; position:absolute; left:0; top:0; right:0; height:3px;
+    background:var(--gold);
+  }
+  .gold-dot{
+    position:absolute; right:64px; top:36px;
+    width:8px; height:8px; background:var(--gold);
+  }
+  .logo{font-family:var(--serif); font-size:28px; line-height:1; letter-spacing:-.02em; color:#FAFAFA}
+  .logo .g{color:var(--gold)}
+  .tagline{
+    font-family:var(--ui); font-size:9px; letter-spacing:.32em;
+    text-transform:uppercase; color:rgba(255,255,255,0.45);
+    margin-top:8px; font-weight:500;
+  }
+  .seclabel{
+    font-family:var(--ui); font-size:9.5px; font-weight:700;
+    letter-spacing:.35em; text-transform:uppercase;
+    color:rgba(255,255,255,0.55); margin-top:48px;
+  }
+  .seclabel::before{
+    content:"——  "; color:var(--gold); letter-spacing:0;
+  }
+  .hero h1{
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(40px, 5.5vw, 64px); line-height:1.04;
+    letter-spacing:-.025em; margin:18px 0 14px;
+    max-width:880px;
+  }
+  .hero h1 em{color:var(--gold); font-style:italic}
+  .hero .lead{
+    font-family:var(--serif); font-size:18px; line-height:1.65;
+    color:rgba(255,255,255,0.78); max-width:760px; margin:8px 0 0;
+  }
+  .hero .gold-rule{display:block; width:80px; height:2px; background:var(--gold); margin:32px 0 24px}
+  .meta-line{
+    font-family:var(--ui); font-size:11px; letter-spacing:.2em;
+    text-transform:uppercase; color:rgba(255,255,255,0.5);
+  }
+
+  /* ===================== SECTIONS ===================== */
+  section{padding:80px 64px}
+  .light{background:var(--cream)}
+  .white{background:#FAFAFA}
+  .container{max-width:1180px; margin:0 auto}
+
+  .seclabel-light{
+    font-family:var(--ui); font-size:9.5px; font-weight:700;
+    letter-spacing:.35em; text-transform:uppercase;
+    color:var(--mid-grey);
+  }
+  .seclabel-light::before{content:"——  "; color:var(--gold); letter-spacing:0}
+
+  .h2{
+    font-family:var(--serif); font-weight:400;
+    font-size:38px; line-height:1.12; letter-spacing:-.025em;
+    color:var(--ink); margin:14px 0 18px;
+  }
+  .h2 em{font-style:italic; color:var(--gold)}
+  .gold-rule-short{display:block; width:64px; height:2px; background:var(--gold); margin:0 0 20px}
+
+  /* ===================== META ROW ===================== */
+  .meta-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+    margin-top:32px;
+  }
+  .field-label{
+    font-family:var(--ui); font-size:9.5px; font-weight:700;
+    letter-spacing:.32em; text-transform:uppercase; color:var(--gold);
+    margin-bottom:10px;
+  }
+  .meta-input{
+    width:100%; border:0; background:transparent;
+    border-bottom:1px solid rgba(28,28,28,0.25);
+    padding:8px 0 10px; font-family:var(--serif); font-size:18px;
+    color:var(--ink); transition:border-color .2s;
+  }
+  .meta-input:focus{outline:0; border-bottom-color:var(--gold)}
+  .meta-input::placeholder{color:var(--mid-grey); font-style:italic}
+
+  .briefing{
+    display:grid; grid-template-columns:1fr 1fr; gap:48px;
+    margin-top:48px; padding-top:32px; border-top:1px solid var(--hair);
+  }
+  .briefing .col h3{
+    font-family:var(--ui); font-size:9.5px; font-weight:700;
+    letter-spacing:.32em; text-transform:uppercase; color:var(--gold);
+    margin:0 0 10px;
+  }
+  .briefing .col p{
+    font-family:var(--serif); font-size:16px; line-height:1.6;
+    color:var(--ink); margin:0; padding-left:14px;
+    border-left:2px solid var(--gold);
+  }
+
+  /* ===================== WIRKUNGSRAD (SVG) ===================== */
+  .wheel-wrap{
+    margin-top:48px; display:grid; grid-template-columns:1.05fr 1fr;
+    gap:64px; align-items:center;
+  }
+  .wheel{width:100%; max-width:520px; aspect-ratio:1; display:block; margin:0 auto}
+  .wheel-side h3{
+    font-family:var(--serif); font-size:28px; line-height:1.2;
+    letter-spacing:-.02em; margin:0 0 10px; color:var(--ink);
+  }
+  .wheel-side h3 em{font-style:italic; color:var(--gold)}
+  .wheel-side p{font-family:var(--ui); font-size:14px; color:#555; line-height:1.65; margin:0 0 24px}
+  .legend{list-style:none; padding:0; margin:0}
+  .legend li{
+    display:flex; align-items:baseline; gap:14px;
+    padding:14px 0; border-top:1px solid var(--hair);
+    font-family:var(--ui); font-size:13.5px; color:var(--ink);
+    cursor:pointer; transition:color .15s;
+  }
+  .legend li:hover{color:var(--gold)}
+  .legend li:last-child{border-bottom:1px solid var(--hair)}
+  .legend .num{
+    font-family:var(--ui); font-weight:700; font-size:10px;
+    letter-spacing:.3em; color:var(--gold); min-width:28px;
+  }
+  .legend .name{font-family:var(--serif); font-size:16px}
+  .legend .sub{color:var(--mid-grey); font-size:12px; margin-left:auto; font-style:italic}
+
+  /* SVG wheel styles */
+  .wheel .seg{
+    fill:#FFFFFF; stroke:#E8E5DF; stroke-width:1.5;
+    cursor:pointer; transition:fill .2s;
+  }
+  .wheel .seg:hover{fill:#FFF6E2}
+  .wheel .seg.filled{fill:#FBE5BD}
+  .wheel .seg.priority{fill:var(--gold)}
+  .wheel .seg.priority:hover{fill:var(--gold-light)}
+  .wheel-rim{
+    fill:none; stroke:#1C1C1C; stroke-width:1.2;
+  }
+  .wheel .seg-num{
+    font-family:var(--serif); font-size:26px; fill:var(--gold);
+    pointer-events:none; text-anchor:middle; dominant-baseline:central;
+    letter-spacing:-.02em;
+  }
+  .wheel .seg-num.dark{fill:var(--obsidian)}
+  .wheel .seg-label{
+    font-family:'DM Sans',sans-serif; font-size:8.5px; font-weight:700;
+    letter-spacing:.22em; fill:var(--ink); text-anchor:middle;
+    pointer-events:none; text-transform:uppercase;
+  }
+  .wheel .seg-label.dark{fill:var(--obsidian)}
+  .wheel-center{
+    fill:var(--obsidian); stroke:var(--gold); stroke-width:1.5;
+  }
+  .wheel-center-text{
+    font-family:var(--serif); font-style:italic; fill:#FAFAFA;
+    text-anchor:middle; dominant-baseline:central; font-size:15px;
+  }
+  .wheel-center-sub{
+    font-family:'DM Sans',sans-serif; font-size:8.5px; font-weight:700;
+    letter-spacing:.32em; fill:var(--gold); text-anchor:middle;
+    text-transform:uppercase;
+  }
+
+  /* ===================== FIELD CARDS ===================== */
+  .field-section{padding:80px 64px; background:var(--cream)}
+  .field-section.alt{background:#FAFAFA}
+
+  .field{
+    max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 2.3fr; gap:48px;
+    padding:48px 0;
+    border-top:1px solid var(--hair);
+  }
+  .field:first-of-type{border-top:0; padding-top:0}
+  .field .left{position:relative; padding-left:24px}
+  .field .left::before{
+    content:""; position:absolute; left:0; top:6px; width:3px; height:88%;
+    background:var(--gold);
+  }
+  .field-num{
+    font-family:var(--ui); font-size:10px; font-weight:700;
+    letter-spacing:.35em; color:var(--gold); margin-bottom:8px;
+  }
+  .field-title{
+    font-family:var(--serif); font-size:30px; line-height:1.1;
+    letter-spacing:-.02em; color:var(--ink); margin:0 0 8px;
+  }
+  .field-sub{
+    font-family:var(--serif); font-style:italic; font-size:15px;
+    color:var(--mid-grey); margin:0 0 14px;
+  }
+  .field-def{
+    font-family:var(--serif); font-size:14px; line-height:1.6;
+    color:#666; margin:0 0 22px; padding:14px 0 0;
+    border-top:1px solid var(--hair); max-width:380px;
+  }
+  .priority-toggle{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--ui); font-size:11px; font-weight:500;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--ink);
+    padding:10px 14px; border:1px solid rgba(28,28,28,0.15);
+    cursor:pointer; user-select:none; transition:all .2s;
+    background:transparent;
+  }
+  .priority-toggle .star{
+    width:12px; height:12px; display:inline-block; position:relative;
+    background:transparent; border:1.5px solid var(--mid-grey);
+    transform:rotate(45deg);
+  }
+  .priority-toggle:hover{border-color:var(--gold); color:var(--gold)}
+  .priority-toggle:hover .star{border-color:var(--gold)}
+  .priority-toggle.active{
+    background:var(--gold); border-color:var(--gold); color:var(--obsidian);
+  }
+  .priority-toggle.active .star{background:var(--obsidian); border-color:var(--obsidian)}
+
+  .answers{display:grid; grid-template-rows:1fr 1fr; gap:24px}
+  .answer{
+    background:#FFFFFF; border:1px solid var(--hair);
+    padding:24px 28px;
+  }
+  .field-section.alt .answer{background:var(--cream)}
+  .answer-label{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--ui); font-size:10px; font-weight:700;
+    letter-spacing:.32em; text-transform:uppercase;
+    margin:0 0 8px;
+  }
+  .answer-label.chance{color:#1A7A45}
+  .answer-label.risk{color:#B23E2C}
+  .answer-question{
+    font-family:var(--serif); font-style:italic; font-size:14px;
+    color:#555; margin:0 0 14px;
+  }
+  textarea{
+    width:100%; min-height:96px; resize:vertical;
+    border:0; border-top:1px solid var(--hair);
+    padding:14px 0 6px; background:transparent;
+    font-family:var(--serif); font-size:16px; line-height:1.55;
+    color:var(--ink); overflow-y:hidden; display:block;
+  }
+  textarea:focus{outline:0; border-top-color:var(--gold)}
+  textarea::placeholder{color:var(--mid-grey); font-style:italic}
+  .answer.has-text{border-color:rgba(245,166,35,0.35)}
+  /* Print mirror — holds full text for print/PDF (textareas clip overflow) */
+  .ta-print{
+    display:none; white-space:pre-wrap; word-wrap:break-word;
+    font-family:var(--serif); font-size:16px; line-height:1.6;
+    color:var(--ink); padding:14px 0 4px;
+    border-top:1px solid var(--hair);
+  }
+  .ta-print:empty::before{content:"—"; color:var(--mid-grey)}
+  .answer .icon{
+    width:16px; height:16px; display:inline-flex;
+    align-items:center; justify-content:center;
+  }
+
+  /* ===================== NOTES ===================== */
+  .notes-section{
+    background:var(--cream); padding:72px 64px;
+    border-top:1px solid var(--hair);
+  }
+  .notes-section .container{max-width:1180px}
+  .notes-section h2{
+    font-family:var(--serif); font-size:30px; letter-spacing:-.02em;
+    margin:14px 0 18px;
+  }
+  .notes-section h2 em{color:var(--gold); font-style:italic}
+  .notes-card{
+    background:#fff; border:1px solid var(--hair);
+    padding:32px;
+  }
+  .notes-card textarea{
+    min-height:160px; border-top:0;
+  }
+
+  /* ===================== ACTION BAR ===================== */
+  .action-bar{
+    position:sticky; bottom:0; z-index:50;
+    background:var(--obsidian); color:#FAFAFA;
+    padding:18px 64px; display:flex; gap:14px; align-items:center;
+    border-top:1px solid var(--gold);
+  }
+  .action-bar .status{
+    font-family:var(--ui); font-size:10px; font-weight:500;
+    letter-spacing:.28em; text-transform:uppercase;
+    color:rgba(255,255,255,0.55);
+  }
+  .action-bar .status .dot{
+    display:inline-block; width:6px; height:6px; background:var(--gold);
+    margin-right:8px; vertical-align:middle;
+  }
+  .action-bar .spacer{flex:1}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 20px; border:1px solid rgba(255,255,255,0.25);
+    background:transparent; color:#FAFAFA; cursor:pointer;
+    font-family:var(--ui); font-size:11px; font-weight:500;
+    letter-spacing:.22em; text-transform:uppercase;
+    transition:all .15s;
+  }
+  .btn:hover{border-color:var(--gold); color:var(--gold)}
+  .btn.primary{
+    background:var(--gold); border-color:var(--gold); color:var(--obsidian);
+  }
+  .btn.primary:hover{background:var(--gold-light); border-color:var(--gold-light); color:var(--obsidian)}
+  .btn.ghost-light{color:rgba(255,255,255,0.65); border-color:rgba(255,255,255,0.15)}
+  .btn.ghost-light:hover{color:var(--gold); border-color:var(--gold)}
+
+  /* ===================== FOOTER ===================== */
+  footer{
+    padding:24px 64px 28px; background:var(--cream);
+    border-top:1px solid var(--gold); display:flex; align-items:center;
+    justify-content:space-between;
+    font-family:var(--ui); font-size:10px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--mid-grey);
+  }
+  footer .right{color:var(--mid-grey)}
+
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width:1024px){
+    .hero, section, .field-section, .notes-section, .action-bar, footer{padding-left:32px; padding-right:32px}
+    .wheel-wrap{grid-template-columns:1fr; gap:40px}
+    .field{grid-template-columns:1fr; gap:24px}
+    .meta-grid{grid-template-columns:1fr}
+    .briefing{grid-template-columns:1fr; gap:24px}
+  }
+  @media (max-width:640px){
+    .hero{padding:40px 24px}
+    .hero h1{font-size:38px}
+    section, .field-section, .notes-section{padding:48px 24px}
+    .action-bar{padding:14px 24px; flex-wrap:wrap}
+    .action-bar .status{width:100%; margin-bottom:6px}
+    footer{flex-direction:column; gap:8px; padding:20px 24px}
+  }
+
+  /* ===================== PRINT / PDF ===================== */
+  @media print {
+    @page{ size:A4; margin:14mm; }
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    html,body{background:#fff !important}
+    .container{max-width:100%}
+
+    /* Hide interactive chrome */
+    .action-bar{display:none !important}
+    .priority-toggle:not(.active){display:none !important}
+    .gold-dot{display:none !important}
+
+    /* Hero → light theme for print (dark bg would waste ink / hide text) */
+    .hero{
+      background:#fff !important; color:var(--ink) !important;
+      padding:0 0 22px !important; border-bottom:2px solid var(--gold);
+      overflow:visible;
+    }
+    .hero::after{display:none !important}
+    .hero::before{display:none !important}
+    .logo{color:var(--ink) !important}
+    .tagline,.seclabel,.meta-line{color:var(--mid-grey) !important}
+    .seclabel::before{color:var(--gold) !important}
+    .hero h1{color:var(--ink) !important}
+    .hero h1 em{color:var(--deep-gold) !important}
+    .hero .lead{color:var(--ink) !important}
+
+    /* Sections → white, tighter */
+    section,.field-section,.notes-section{
+      padding:22px 0 !important; background:#fff !important;
+    }
+    .light,.white{background:#fff !important}
+
+    /* Fields → single column, never split mid-field */
+    .field{
+      grid-template-columns:1fr !important; gap:14px !important;
+      padding:18px 0 !important; page-break-inside:avoid; break-inside:avoid;
+    }
+    .field .left::before{height:100%}
+    .field-def{max-width:100%}
+    .wheel-wrap{grid-template-columns:1fr !important; gap:24px}
+    .wheel{max-width:320px}
+
+    /* Textareas clip overflow when printed — use the print mirror instead */
+    textarea{display:none !important}
+    .ta-print{display:block !important; break-inside:avoid}
+    .answer{break-inside:avoid; background:#fff !important; border-color:#D8D4CC !important}
+    .notes-card{break-inside:avoid}
+    footer{padding:16px 0}
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================== HERO =========================== -->
+<header class="hero">
+  <span class="gold-dot"></span>
+  <div class="logo">Raut<span class="g">a</span>k<span class="g">i</span></div>
+  <div class="tagline">Strategy · Advisory · Growth</div>
+  <div class="seclabel">Praxisaufgabe · Einzelreflexion</div>
+  <h1>KI-Leadership <em>Wirkungsrad.</em></h1>
+  <p class="lead">Individuelle Reflexion: Chancen &amp; Risiken von KI in 6&nbsp;Wirkungsfeldern.</p>
+  <span class="gold-rule"></span>
+  <div class="meta-line">CAS Chief AI Officer  ·  ca. 12 – 15 Minuten</div>
+</header>
+
+<!-- =========================== META ========================== -->
+<section class="light">
+  <div class="container">
+    <div class="seclabel-light">Kontext &amp; Ziel</div>
+    <h2 class="h2">Ihre <em>Reflexion</em> beginnt hier.</h2>
+    <span class="gold-rule-short"></span>
+
+    <div class="meta-grid">
+      <div>
+        <div class="field-label">Name</div>
+        <input type="text" class="meta-input" id="meta-name" placeholder="Ihr Name">
+      </div>
+      <div>
+        <div class="field-label">Organisation · Rolle</div>
+        <input type="text" class="meta-input" id="meta-org" placeholder="Unternehmen, Abteilung oder Verantwortung">
+      </div>
+      <div>
+        <div class="field-label">Datum</div>
+        <input type="text" class="meta-input" id="meta-date">
+      </div>
+    </div>
+
+    <div class="briefing">
+      <div class="col">
+        <h3>Ziel</h3>
+        <p>Verbinden Sie die 6&nbsp;Leadership-Wirkungsfelder mit KI und priorisieren Sie Ihren Fokus.</p>
+      </div>
+      <div class="col">
+        <h3>Anleitung</h3>
+        <p>Beantworten Sie für jedes Feld beide Fragen (max.&nbsp;1&nbsp;Satz). Markieren Sie danach das für Sie strategisch wichtigste Feld.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== WIRKUNGSRAD ========================== -->
+<section class="white">
+  <div class="container">
+    <div class="seclabel-light">Das Wirkungsrad</div>
+    <h2 class="h2">Sechs <em>Wirkungsfelder</em> der Führung.</h2>
+    <span class="gold-rule-short"></span>
+
+    <div class="wheel-wrap">
+      <svg class="wheel" viewBox="-260 -260 520 520" id="wheel" aria-label="Wirkungsrad mit 6 Segmenten">
+        <!-- Generated below by JS -->
+      </svg>
+      <div class="wheel-side">
+        <h3>Klicken Sie auf ein <em>Segment</em>, um zu antworten.</h3>
+        <p>Sobald Sie ein Feld ausgefüllt haben, färbt sich das Segment ein. Wählen Sie am Ende Ihr wichtigstes Feld — es leuchtet im Rad goldfarben auf.</p>
+        <ul class="legend" id="legend"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== 6 WIRKUNGSFELDER ========================== -->
+<section class="field-section" id="fields">
+  <div class="container">
+    <div class="seclabel-light">Reflexion · Felder 01 – 06</div>
+    <h2 class="h2">Ihre <em>Antworten</em>.</h2>
+    <span class="gold-rule-short"></span>
+    <div id="fields-list"></div>
+  </div>
+</section>
+
+<!-- =========================== NOTES ========================== -->
+<section class="notes-section">
+  <div class="container">
+    <div class="seclabel-light">Freitext</div>
+    <h2>Persönliche <em>Notizen</em> &amp; Reflexion.</h2>
+    <span class="gold-rule-short"></span>
+    <div class="notes-card">
+      <div class="field-label">Was nehmen Sie mit? Was bleibt offen?</div>
+      <textarea id="notes" placeholder="Ihre persönlichen Gedanken, Erkenntnisse, offenen Fragen…"></textarea>
+      <div class="ta-print" id="notes-print"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== ACTION BAR ========================== -->
+<div class="action-bar" id="actions">
+  <span class="status"><span class="dot"></span><span id="save-status">Auto-Save aktiv</span></span>
+  <span class="spacer"></span>
+  <button class="btn ghost-light" id="btn-reset" type="button">↺ Zurücksetzen</button>
+  <button class="btn" id="btn-print" type="button">⎙ Drucken / PDF</button>
+  <button class="btn" id="btn-html" type="button">↓ HTML</button>
+  <button class="btn primary" id="btn-docx" type="button">↓ Word (.docx)</button>
+</div>
+
+<footer>
+  <span>© Rautaki · Strategy · Advisory · Growth</span>
+  <span class="right">rautaki.ch</span>
+</footer>
+
+<script>
+/* =================================================================
+   DATA
+================================================================== */
+const FIELDS = [
+  { n:"01", id:"f1", title:"Strategische\nUnternehmensführung", sub:"Purpose & Vision",
+    short:"Strategische Führung", short2:"Purpose & Vision",
+    def:"Strategische Unternehmensführung bestimmt die Richtung — sie definiert Purpose, Vision und langfristige Positionierung der Organisation. Sie übersetzt Umfeldsignale in strategische Entscheidungen und priorisiert Ressourcen entlang langfristiger Wertschöpfung. Im Kern beantwortet sie die Frage, wofür ein Unternehmen steht und wohin es sich entwickelt — Evolution oder bewusste Disruption." },
+  { n:"02", id:"f2", title:"Organisations-\nmanagement", sub:"Effizienz & Effektivität",
+    short:"Organisation", short2:"Effizienz & Effektivität",
+    def:"Organisationsmanagement gestaltet die innere Architektur des Unternehmens — Strukturen, Prozesse, Governance und Entscheidungswege. Ziel ist die Balance zwischen Effizienz (die Dinge richtig tun) und Effektivität (die richtigen Dinge tun). Es geht um Geschwindigkeit, Ressourcenfluss und das passende Operating Model — von agil bis lean — je nach strategischer Anforderung." },
+  { n:"03", id:"f3", title:"Mitarbeiter-\nführung", sub:"Menschliche & interaktive Potentiale",
+    short:"Mitarbeiter", short2:"Menschliche Potentiale",
+    def:"Mitarbeiterführung entfaltet menschliche Potenziale durch Vertrauen, Klarheit und Entwicklung. Sie schafft psychologische Sicherheit, gestaltet Teamdynamiken und navigiert zwischen transaktionalem Steuern und transformationaler Inspiration. Wirkungsvolle Führung verbindet individuelle Anliegen mit kollektivem Beitrag — und macht Mitarbeitende zu Mitgestaltenden der Strategie." },
+  { n:"04", id:"f4", title:"Markt- und\nKundenführung", sub:"Kundenüberzeugung",
+    short:"Markt & Kunde", short2:"Kundenüberzeugung",
+    def:"Markt- und Kundenführung verankert das Unternehmen in seinem äusseren Wirkungsfeld — bei Kund:innen, in Märkten, im Wettbewerb. Sie definiert das Wertversprechen, die Differenzierung und die Kundenerfahrung. Strategisch entscheidet sie, ob man bestehende Märkte schärfer bespielt (Red Ocean) oder neue Räume schafft (Blue Ocean) — und wie Vertrauen, Relevanz und Bindung entstehen." },
+  { n:"05", id:"f5", title:"Change\nLeadership", sub:"Weiterentwicklung",
+    short:"Change", short2:"Weiterentwicklung",
+    def:"Change Leadership macht Veränderung zu einer Kernkompetenz der Organisation — nicht zur Ausnahme. Sie unterscheidet zwischen Optimierung (das Bestehende verbessern) und Transformation (das Geschäftsmodell selbst verändern) und führt beide Modi parallel. Sie kommuniziert Sinn, mobilisiert Beteiligung und navigiert durch Widerstand, Ambiguität und nicht-linearen Fortschritt." },
+  { n:"06", id:"f6", title:"Selbst-\nführung", sub:"Persönliche Entwicklung",
+    short:"Selbst", short2:"Persönliche Entwicklung",
+    def:"Selbstführung ist das Fundament jeder anderen Führungswirkung — sie beginnt bei der eigenen Klarheit über Identität, Werte und Wirkung. Sie umfasst Selbstreflexion, emotionale Intelligenz, Resilienz und die Bereitschaft zur kontinuierlichen Weiterentwicklung. Wer andere führen will, muss sich zuerst selbst führen — nicht über Kontrolle, sondern über Bewusstheit und Wachstum." },
+];
+
+const Q_CHANCE = "Wo schafft KI in meinem Verantwortungsbereich heute Chancen?";
+const Q_RISK   = "Wo erzeugt KI Risiken oder Spannungen?";
+
+const STORAGE_KEY = "rautaki.wirkungsrad.v1";
+
+/* =================================================================
+   STATE
+================================================================== */
+const state = {
+  name:"", org:"", date:"",
+  notes:"",
+  priority:null,        // id of priority field
+  answers:{},           // {f1:{chance:"…", risk:"…"}, …}
+};
+FIELDS.forEach(f => state.answers[f.id] = {chance:"", risk:""});
+
+/* =================================================================
+   PERSISTENCE
+================================================================== */
+function save(){
+  try{
+    state.savedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    flashStatus("Gespeichert · " + new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){ flashStatus("Speichern fehlgeschlagen"); }
+}
+let saveTimer=null;
+function debouncedSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(save, 400); }
+function load(){
+  try{
+    // Source 1 — embedded state (present in a downloaded HTML file)
+    let embedded = null;
+    const embEl = document.getElementById('embedded-state');
+    if(embEl && embEl.textContent.trim()){
+      try{ embedded = JSON.parse(embEl.textContent); }catch(e){}
+    }
+    // Source 2 — localStorage (working cache in this browser)
+    let stored = null;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ try{ stored = JSON.parse(raw); }catch(e){} }
+
+    // Choose the newest by timestamp; falls back gracefully
+    let chosen = null;
+    if(embedded && stored){
+      chosen = (stored.savedAt || 0) >= (embedded.savedAt || 0) ? stored : embedded;
+    }else{
+      chosen = stored || embedded;
+    }
+    if(!chosen) return false;
+
+    Object.assign(state, chosen);
+    FIELDS.forEach(f => {
+      if(!state.answers[f.id]) state.answers[f.id] = {chance:"", risk:""};
+    });
+    return true;
+  }catch(e){ return false; }
+}
+function reset(){
+  if(!confirm("Alle Eingaben zurücksetzen? Diese Aktion kann nicht rückgängig gemacht werden.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function flashStatus(msg){
+  const el = document.getElementById('save-status');
+  if(!el) return;
+  el.textContent = msg;
+  clearTimeout(flashStatus._t);
+  flashStatus._t = setTimeout(()=> el.textContent = "Auto-Save aktiv", 1800);
+}
+
+/* =================================================================
+   META
+================================================================== */
+function todayString(){
+  const d = new Date();
+  return d.toLocaleDateString('de-CH', { day:'2-digit', month:'long', year:'numeric' });
+}
+function initMeta(){
+  document.getElementById('meta-name').value = state.name || "";
+  document.getElementById('meta-org').value  = state.org  || "";
+  document.getElementById('meta-date').value = state.date || todayString();
+  state.date = document.getElementById('meta-date').value;
+
+  document.getElementById('meta-name').addEventListener('input', e => { state.name = e.target.value; debouncedSave(); });
+  document.getElementById('meta-org').addEventListener('input',  e => { state.org  = e.target.value; debouncedSave(); });
+  document.getElementById('meta-date').addEventListener('input', e => { state.date = e.target.value; debouncedSave(); });
+
+  const notesEl = document.getElementById('notes');
+  notesEl.value = state.notes || "";
+  autoGrow(notesEl);
+  notesEl.addEventListener('input', e => { state.notes = e.target.value; autoGrow(notesEl); debouncedSave(); });
+}
+
+/* =================================================================
+   WHEEL  (6 segments)
+================================================================== */
+function buildWheel(){
+  const svg = document.getElementById('wheel');
+  svg.innerHTML = "";
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const n = 6;
+  const R_outer = 235;
+  const R_inner = 88;
+  const R_num   = R_outer - 38;        // numbers near outer rim
+  const R_label = R_inner + (R_outer - R_inner) * 0.42;  // labels in inner-half of donut
+
+  // 6 segments: top is index 0, going clockwise
+  const startAngle = -90 - 30;
+  for(let i=0; i<n; i++){
+    const a0 = (startAngle + i*(360/n)) * Math.PI/180;
+    const a1 = (startAngle + (i+1)*(360/n)) * Math.PI/180;
+    const x0o = R_outer*Math.cos(a0), y0o = R_outer*Math.sin(a0);
+    const x1o = R_outer*Math.cos(a1), y1o = R_outer*Math.sin(a1);
+    const x0i = R_inner*Math.cos(a0), y0i = R_inner*Math.sin(a0);
+    const x1i = R_inner*Math.cos(a1), y1i = R_inner*Math.sin(a1);
+    const d = `M ${x0o} ${y0o} A ${R_outer} ${R_outer} 0 0 1 ${x1o} ${y1o} L ${x1i} ${y1i} A ${R_inner} ${R_inner} 0 0 0 ${x0i} ${y0i} Z`;
+
+    const path = document.createElementNS(SVGNS,"path");
+    path.setAttribute("d", d);
+    path.setAttribute("class","seg");
+    path.setAttribute("data-id", FIELDS[i].id);
+    path.addEventListener('click', () => focusField(FIELDS[i].id));
+    svg.appendChild(path);
+  }
+
+  // Visible outer and inner rim circles (drawn on top of segments)
+  const rimOuter = document.createElementNS(SVGNS,"circle");
+  rimOuter.setAttribute("class","wheel-rim");
+  rimOuter.setAttribute("cx",0); rimOuter.setAttribute("cy",0);
+  rimOuter.setAttribute("r", R_outer);
+  rimOuter.setAttribute("style","pointer-events:none");
+  svg.appendChild(rimOuter);
+
+  // Number + label layer (after rim so they sit on top)
+  for(let i=0; i<n; i++){
+    const a0 = (startAngle + i*(360/n)) * Math.PI/180;
+    const a1 = (startAngle + (i+1)*(360/n)) * Math.PI/180;
+    const angMid = (a0+a1)/2;
+
+    // Number
+    const xn = R_num*Math.cos(angMid), yn = R_num*Math.sin(angMid);
+    const numEl = document.createElementNS(SVGNS,"text");
+    numEl.setAttribute("class","seg-num");
+    numEl.setAttribute("x", xn); numEl.setAttribute("y", yn);
+    numEl.setAttribute("data-id", FIELDS[i].id);
+    numEl.textContent = FIELDS[i].n;
+    svg.appendChild(numEl);
+
+    // Label — short name, max 2 lines
+    const xl = R_label*Math.cos(angMid), yl = R_label*Math.sin(angMid);
+    const lbl = document.createElementNS(SVGNS,"text");
+    lbl.setAttribute("class","seg-label");
+    lbl.setAttribute("x", xl); lbl.setAttribute("y", yl);
+    lbl.setAttribute("data-id", FIELDS[i].id);
+    const lines = FIELDS[i].short.split(/[\s\&]+/).filter(Boolean);
+    const top = lines.length > 1 ? lines.slice(0, Math.ceil(lines.length/2)).join(" ") : lines[0];
+    const bot = lines.length > 1 ? lines.slice(Math.ceil(lines.length/2)).join(" ") : "";
+    const t1 = document.createElementNS(SVGNS,"tspan");
+    t1.setAttribute("x", xl); t1.setAttribute("dy", bot ? "-0.35em" : "0.35em");
+    t1.textContent = top;
+    lbl.appendChild(t1);
+    if(bot){
+      const t2 = document.createElementNS(SVGNS,"tspan");
+      t2.setAttribute("x", xl); t2.setAttribute("dy", "1.15em");
+      t2.textContent = bot;
+      lbl.appendChild(t2);
+    }
+    svg.appendChild(lbl);
+  }
+
+  // Center hub
+  const hub = document.createElementNS(SVGNS,"circle");
+  hub.setAttribute("r", R_inner-2); hub.setAttribute("cx", 0); hub.setAttribute("cy", 0);
+  hub.setAttribute("class","wheel-center");
+  hub.setAttribute("style","pointer-events:none");
+  svg.appendChild(hub);
+
+  const t1 = document.createElementNS(SVGNS,"text");
+  t1.setAttribute("class","wheel-center-sub"); t1.setAttribute("y", -22);
+  t1.textContent = "Wirkungsrad";
+  svg.appendChild(t1);
+  // Small gold tick under sub
+  const tick = document.createElementNS(SVGNS,"rect");
+  tick.setAttribute("x",-12); tick.setAttribute("y",-14);
+  tick.setAttribute("width",24); tick.setAttribute("height",1.2);
+  tick.setAttribute("fill","#F5A623");
+  svg.appendChild(tick);
+
+  const t2 = document.createElementNS(SVGNS,"text");
+  t2.setAttribute("class","wheel-center-text"); t2.setAttribute("y", 6);
+  t2.textContent = "Führung";
+  svg.appendChild(t2);
+  const t3 = document.createElementNS(SVGNS,"text");
+  t3.setAttribute("y", 28);
+  t3.setAttribute("text-anchor","middle");
+  t3.setAttribute("font-family","'DM Sans',sans-serif");
+  t3.setAttribute("font-size","9");
+  t3.setAttribute("letter-spacing","2");
+  t3.setAttribute("fill","rgba(255,255,255,0.45)");
+  t3.setAttribute("style","text-transform:uppercase");
+  t3.textContent = "im KI-Zeitalter";
+  svg.appendChild(t3);
+}
+
+function refreshWheel(){
+  const svg = document.getElementById('wheel');
+  svg.querySelectorAll('.seg').forEach(p => {
+    const id = p.getAttribute('data-id');
+    const a = state.answers[id];
+    const filled = (a.chance.trim().length>0) || (a.risk.trim().length>0);
+    p.classList.toggle('filled', filled && state.priority !== id);
+    p.classList.toggle('priority', state.priority === id);
+  });
+  svg.querySelectorAll('.seg-num, .seg-label').forEach(el => {
+    const id = el.getAttribute('data-id');
+    el.classList.toggle('dark', state.priority === id);
+  });
+}
+
+/* =================================================================
+   LEGEND
+================================================================== */
+function buildLegend(){
+  const ul = document.getElementById('legend');
+  ul.innerHTML = "";
+  FIELDS.forEach(f => {
+    const li = document.createElement('li');
+    li.addEventListener('click', () => focusField(f.id));
+    li.innerHTML = `<span class="num">${f.n}</span><span class="name">${f.short.replace(/\n/g,' ')}</span><span class="sub">${f.short2}</span>`;
+    ul.appendChild(li);
+  });
+}
+
+/* =================================================================
+   FIELDS — 6 CARDS
+================================================================== */
+function buildFields(){
+  const list = document.getElementById('fields-list');
+  list.innerHTML = "";
+  FIELDS.forEach((f, idx) => {
+    const card = document.createElement('div');
+    card.className = 'field';
+    card.id = f.id;
+    card.innerHTML = `
+      <div class="left">
+        <div class="field-num">FELD ${f.n}</div>
+        <h3 class="field-title">${escapeHtml(f.title).replace(/\n/g,'<br>')}</h3>
+        <p class="field-sub">${escapeHtml(f.sub)}</p>
+        <p class="field-def">${escapeHtml(f.def)}</p>
+        <button type="button" class="priority-toggle" data-id="${f.id}">
+          <span class="star"></span>
+          <span class="lbl">Als wichtigstes Feld markieren</span>
+        </button>
+      </div>
+      <div class="answers">
+        <div class="answer" data-kind="chance" data-id="${f.id}">
+          <div class="answer-label chance"><span class="icon">💡</span> Chancen</div>
+          <div class="answer-question">${escapeHtml(Q_CHANCE)}</div>
+          <textarea data-id="${f.id}" data-kind="chance" placeholder="Eine Chance, die KI hier eröffnet…"></textarea>
+          <div class="ta-print"></div>
+        </div>
+        <div class="answer" data-kind="risk" data-id="${f.id}">
+          <div class="answer-label risk"><span class="icon">⚠️</span> Risiken</div>
+          <div class="answer-question">${escapeHtml(Q_RISK)}</div>
+          <textarea data-id="${f.id}" data-kind="risk" placeholder="Ein Risiko oder eine Spannung…"></textarea>
+          <div class="ta-print"></div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  // Alternate background on every other section visually
+  list.querySelectorAll('.field').forEach((el, i) => {
+    if(i % 2 === 1) el.style.background = "rgba(0,0,0,0)";
+  });
+
+  // Bind inputs
+  list.querySelectorAll('textarea').forEach(ta => {
+    const id = ta.getAttribute('data-id');
+    const kind = ta.getAttribute('data-kind');
+    ta.value = state.answers[id][kind] || "";
+    refreshAnswerCard(ta);
+    autoGrow(ta);
+    ta.addEventListener('input', () => {
+      state.answers[id][kind] = ta.value;
+      refreshAnswerCard(ta);
+      autoGrow(ta);
+      refreshWheel();
+      debouncedSave();
+    });
+  });
+
+  // Priority toggles
+  list.querySelectorAll('.priority-toggle').forEach(btn => {
+    const id = btn.getAttribute('data-id');
+    btn.addEventListener('click', () => {
+      state.priority = (state.priority === id) ? null : id;
+      refreshPriority();
+      refreshWheel();
+      save();
+    });
+  });
+
+  refreshPriority();
+}
+
+function refreshAnswerCard(ta){
+  const card = ta.closest('.answer');
+  if(ta.value.trim().length>0) card.classList.add('has-text');
+  else card.classList.remove('has-text');
+}
+
+function refreshPriority(){
+  document.querySelectorAll('.priority-toggle').forEach(btn => {
+    const id = btn.getAttribute('data-id');
+    const active = state.priority === id;
+    btn.classList.toggle('active', active);
+    btn.querySelector('.lbl').textContent = active
+      ? "Wichtigstes Feld ✓"
+      : "Als wichtigstes Feld markieren";
+  });
+}
+
+function focusField(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(() => {
+    const ta = el.querySelector('textarea[data-kind="chance"]');
+    if(ta) ta.focus();
+  }, 450);
+}
+
+function escapeHtml(s){
+  return String(s||"")
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* =================================================================
+   AUTO-GROW & PRINT MIRRORS
+================================================================== */
+function autoGrow(ta){
+  if(!ta) return;
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 2) + 'px';
+}
+function autoGrowAll(){
+  document.querySelectorAll('.answer textarea, #notes').forEach(autoGrow);
+}
+function syncPrintMirrors(){
+  // Copy textarea content into the print-mirror divs so the full text
+  // (not just the visible slice) appears in print / PDF.
+  document.querySelectorAll('.answer').forEach(card => {
+    const ta = card.querySelector('textarea');
+    const mirror = card.querySelector('.ta-print');
+    if(ta && mirror) mirror.textContent = ta.value;
+  });
+  const notesEl = document.getElementById('notes');
+  const notesMirror = document.getElementById('notes-print');
+  if(notesEl && notesMirror) notesMirror.textContent = notesEl.value;
+}
+
+/* =================================================================
+   DOWNLOAD — HTML  (embeds state so the reopened file keeps all data)
+================================================================== */
+function downloadHtml(){
+  const clone = document.documentElement.cloneNode(true);
+  // Persist meta input values as attributes (visible even before JS runs)
+  const liveInputs = document.querySelectorAll('input.meta-input');
+  clone.querySelectorAll('input.meta-input').forEach((el,i) => {
+    if(liveInputs[i]) el.setAttribute('value', liveInputs[i].value);
+  });
+  // Persist textarea content
+  const liveTA = document.querySelectorAll('textarea');
+  clone.querySelectorAll('textarea').forEach((el,i) => {
+    if(liveTA[i]) el.textContent = liveTA[i].value;
+  });
+  // Remove any stale embedded state, then inject fresh state JSON
+  const body = clone.querySelector('body');
+  const old = clone.querySelector('#embedded-state');
+  if(old) old.remove();
+  const stateScript = document.createElement('script');
+  stateScript.id = 'embedded-state';
+  stateScript.type = 'application/json';
+  state.savedAt = Date.now();
+  stateScript.textContent = JSON.stringify(state);
+  body.insertBefore(stateScript, body.firstChild);
+
+  const blob = new Blob(['<!doctype html>\n', clone.outerHTML],
+                        {type:'text/html;charset=utf-8'});
+  triggerDownload(blob, fileBase() + ".html");
+}
+
+/* =================================================================
+   DOCX ENGINE — real OOXML (.docx) built in pure JavaScript.
+   No libraries: a hand-rolled STORED-mode ZIP + CRC-32.
+   Word, Pages and Google Docs open the result with no warnings.
+================================================================== */
+const CRC_TABLE = (function(){
+  const t = new Uint32Array(256);
+  for(let i=0;i<256;i++){
+    let c = i;
+    for(let k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+    t[i] = c>>>0;
+  }
+  return t;
+})();
+function crc32(bytes){
+  let c = 0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c>>>8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function _concat(arrs){
+  let len = 0; arrs.forEach(a => len += a.length);
+  const out = new Uint8Array(len);
+  let p = 0; arrs.forEach(a => { out.set(a,p); p += a.length; });
+  return out;
+}
+function _u16(n){ return new Uint8Array([n&0xFF,(n>>8)&0xFF]); }
+function _u32(n){ return new Uint8Array([n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>>24)&0xFF]); }
+function makeZip(files){
+  // files: [{name, data:Uint8Array}] — all stored (uncompressed)
+  const chunks = [], central = [];
+  let offset = 0;
+  files.forEach(f => {
+    const enc = new TextEncoder();
+    const nameBytes = enc.encode(f.name);
+    const data = f.data;
+    const crc = crc32(data);
+    const lfh = _concat([
+      _u32(0x04034b50), _u16(20), _u16(0), _u16(0), _u16(0), _u16(0x21),
+      _u32(crc), _u32(data.length), _u32(data.length),
+      _u16(nameBytes.length), _u16(0), nameBytes
+    ]);
+    chunks.push(lfh, data);
+    central.push(_concat([
+      _u32(0x02014b50), _u16(20), _u16(20), _u16(0), _u16(0), _u16(0), _u16(0x21),
+      _u32(crc), _u32(data.length), _u32(data.length),
+      _u16(nameBytes.length), _u16(0), _u16(0), _u16(0), _u16(0),
+      _u32(0), _u32(offset), nameBytes
+    ]));
+    offset += lfh.length + data.length;
+  });
+  const centralBytes = _concat(central);
+  const eocd = _concat([
+    _u32(0x06054b50), _u16(0), _u16(0),
+    _u16(files.length), _u16(files.length),
+    _u32(centralBytes.length), _u32(offset), _u16(0)
+  ]);
+  return _concat([...chunks, centralBytes, eocd]);
+}
+
+/* ---- WordprocessingML helpers ---- */
+function xmlEsc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+function wRun(text, o){
+  o = o || {};
+  const font = o.font || 'Calibri';
+  const rpr = [`<w:rFonts w:ascii="${font}" w:hAnsi="${font}" w:cs="${font}"/>`];
+  if(o.bold)    rpr.push('<w:b/>');
+  if(o.italic)  rpr.push('<w:i/>');
+  if(o.caps)    rpr.push('<w:caps/>');
+  if(o.color)   rpr.push(`<w:color w:val="${o.color}"/>`);
+  if(o.spacing) rpr.push(`<w:spacing w:val="${o.spacing}"/>`);
+  if(o.size)    rpr.push(`<w:sz w:val="${Math.round(o.size*2)}"/><w:szCs w:val="${Math.round(o.size*2)}"/>`);
+  // Newlines → <w:br/>
+  const parts = String(text==null?'':text).split('\n');
+  let t = '';
+  parts.forEach((p,i) => {
+    if(i>0) t += '<w:br/>';
+    t += `<w:t xml:space="preserve">${xmlEsc(p)}</w:t>`;
+  });
+  return `<w:r><w:rPr>${rpr.join('')}</w:rPr>${t}</w:r>`;
+}
+function wPara(runsXml, o){
+  o = o || {};
+  const ppr = [];
+  const bd = [];
+  if(o.borderTop)    bd.push(`<w:top w:val="single" w:sz="${o.borderTop.sz||18}" w:space="${o.borderTop.space||6}" w:color="${o.borderTop.color}"/>`);
+  if(o.borderLeft)   bd.push(`<w:left w:val="single" w:sz="${o.borderLeft.sz||18}" w:space="${o.borderLeft.space||8}" w:color="${o.borderLeft.color}"/>`);
+  if(o.borderBottom) bd.push(`<w:bottom w:val="single" w:sz="${o.borderBottom.sz||6}" w:space="${o.borderBottom.space||6}" w:color="${o.borderBottom.color}"/>`);
+  if(bd.length) ppr.push(`<w:pBdr>${bd.join('')}</w:pBdr>`);
+  if(o.shade) ppr.push(`<w:shd w:val="clear" w:color="auto" w:fill="${o.shade}"/>`);
+  const sp = [];
+  if(o.before!=null) sp.push(`w:before="${o.before}"`);
+  if(o.after!=null)  sp.push(`w:after="${o.after}"`);
+  if(o.line!=null)   sp.push(`w:line="${o.line}" w:lineRule="auto"`);
+  if(sp.length) ppr.push(`<w:spacing ${sp.join(' ')}/>`);
+  if(o.ind!=null) ppr.push(`<w:ind w:left="${o.ind}"/>`);
+  if(o.keepNext) ppr.push('<w:keepNext/>');
+  return `<w:p><w:pPr>${ppr.join('')}</w:pPr>${runsXml}</w:p>`;
+}
+
+function buildDocxBody(){
+  const GOLD='F5A623', DGOLD='B87400', INK='1C1C1C',
+        GREY='9A9590', MID='555555', SUB='7A7A7A', RULE='D8D4CC';
+  const SERIF='Georgia', UI='Calibri';
+  const P = [];
+
+  // Header
+  P.push(wPara(wRun('RAUTAKI      ·      STRATEGY  ·  ADVISORY  ·  GROWTH',
+    {font:UI,size:8,bold:true,color:DGOLD,caps:true,spacing:24}), {after:80}));
+  P.push(wPara(wRun('KI-Leadership Wirkungsrad',
+    {font:SERIF,size:30,color:INK}), {after:40}));
+  P.push(wPara(wRun('Individuelle Reflexion: Chancen & Risiken von KI in 6 Wirkungsfeldern.',
+    {font:SERIF,size:13,italic:true,color:INK}), {after:80}));
+  P.push(wPara(wRun('PRAXISAUFGABE  ·  EINZELREFLEXION  ·  CAS CHIEF AI OFFICER',
+    {font:UI,size:8,bold:true,color:GREY,caps:true,spacing:20}),
+    {after:220, borderBottom:{color:RULE,sz:6,space:8}}));
+
+  // Meta block
+  function metaPara(label,val){
+    return wPara(
+      wRun(label,{font:UI,size:8,bold:true,color:DGOLD,caps:true,spacing:20}) +
+      wRun('\n',{}) +
+      wRun(val&&val.trim()?val:'—',{font:SERIF,size:13,color:INK}),
+      {before:100, after:120}
+    );
+  }
+  P.push(metaPara('Name', state.name));
+  P.push(metaPara('Organisation · Rolle', state.org));
+  P.push(metaPara('Datum', state.date));
+
+  // Priority banner
+  const pf = state.priority ? FIELDS.find(f => f.id === state.priority) : null;
+  if(pf){
+    P.push(wPara(
+      wRun('★   WICHTIGSTES FELD:   ' + pf.short + ' — ' + pf.short2,
+        {font:UI,size:9,bold:true,color:'0A0A0A',caps:true,spacing:15}),
+      {before:200, after:200, shade:GOLD}
+    ));
+  }
+
+  // Section heading
+  P.push(wPara(wRun('Reflexion · 6 Wirkungsfelder',
+    {font:SERIF,size:18,color:INK}), {before:240, after:140}));
+
+  // Fields
+  FIELDS.forEach(f => {
+    const a = state.answers[f.id] || {chance:'',risk:''};
+    const isP = state.priority === f.id;
+    P.push(wPara(wRun('FELD ' + f.n + (isP ? '        ★  WICHTIGSTES FELD' : ''),
+      {font:UI,size:9,bold:true,color:DGOLD,caps:true,spacing:25}),
+      {before:280, after:60, borderTop:{color:GOLD,sz:20,space:8}, keepNext:true}));
+    P.push(wPara(wRun(f.title.replace(/\n/g,' '),
+      {font:SERIF,size:16,color:INK}), {after:20, keepNext:true}));
+    P.push(wPara(wRun(f.sub,
+      {font:SERIF,size:11,italic:true,color:SUB}), {after:60, keepNext:true}));
+    P.push(wPara(wRun(f.def,
+      {font:SERIF,size:10,color:MID}), {after:150, line:240}));
+    // Chancen
+    P.push(wPara(wRun('Chancen',
+      {font:UI,size:9,bold:true,color:DGOLD,caps:true,spacing:15}), {after:20, keepNext:true}));
+    P.push(wPara(wRun(Q_CHANCE,
+      {font:SERIF,size:10,italic:true,color:'666666'}), {after:50, keepNext:true}));
+    P.push(wPara(wRun(a.chance&&a.chance.trim()?a.chance:'—',
+      {font:SERIF,size:12,color:INK}),
+      {after:170, ind:150, line:264, borderLeft:{color:GOLD,sz:20,space:10}}));
+    // Risiken
+    P.push(wPara(wRun('Risiken',
+      {font:UI,size:9,bold:true,color:DGOLD,caps:true,spacing:15}), {after:20, keepNext:true}));
+    P.push(wPara(wRun(Q_RISK,
+      {font:SERIF,size:10,italic:true,color:'666666'}), {after:50, keepNext:true}));
+    P.push(wPara(wRun(a.risk&&a.risk.trim()?a.risk:'—',
+      {font:SERIF,size:12,color:INK}),
+      {after:200, ind:150, line:264, borderLeft:{color:GOLD,sz:20,space:10}}));
+  });
+
+  // Notes
+  if(state.notes && state.notes.trim()){
+    P.push(wPara(wRun('Persönliche Notizen & Reflexion',
+      {font:SERIF,size:18,color:INK}),
+      {before:300, after:140, borderTop:{color:RULE,sz:6,space:10}}));
+    P.push(wPara(wRun(state.notes,
+      {font:SERIF,size:12,color:INK}),
+      {after:160, ind:150, line:288, borderLeft:{color:GOLD,sz:20,space:10}}));
+  }
+
+  // Footer
+  P.push(wPara(wRun('rautaki.ch        ·        STRATEGY · ADVISORY · GROWTH',
+    {font:UI,size:8,bold:true,color:GREY,caps:true,spacing:20}),
+    {before:320, borderTop:{color:GOLD,sz:14,space:10}}));
+
+  return P.join('\n');
+}
+
+function downloadDocx(){
+  const documentXml =
+'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+'<w:body>' +
+buildDocxBody() +
+'<w:sectPr>' +
+'<w:pgSz w:w="11906" w:h="16838"/>' +
+'<w:pgMar w:top="1247" w:right="1247" w:bottom="1247" w:left="1247" w:header="708" w:footer="708" w:gutter="0"/>' +
+'</w:sectPr>' +
+'</w:body></w:document>';
+
+  const contentTypes =
+'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+'<Default Extension="xml" ContentType="application/xml"/>' +
+'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+'</Types>';
+
+  const rels =
+'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+'</Relationships>';
+
+  const enc = new TextEncoder();
+  const zip = makeZip([
+    {name:'[Content_Types].xml', data:enc.encode(contentTypes)},
+    {name:'_rels/.rels',         data:enc.encode(rels)},
+    {name:'word/document.xml',   data:enc.encode(documentXml)},
+  ]);
+  const blob = new Blob([zip],
+    {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  triggerDownload(blob, fileBase() + ".docx");
+}
+
+/* =================================================================
+   HELPERS
+================================================================== */
+function fileBase(){
+  const safe = (s) => (s||"").replace(/[^a-zA-Z0-9_\-]+/g,'_').replace(/^_+|_+$/g,'') || "anonym";
+  const d = new Date();
+  const ymd = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return `Wirkungsrad_${safe(state.name)}_${ymd}`;
+}
+function triggerDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.rel = 'noopener';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  // Keep the object URL alive long enough for Safari to finish the download.
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+}
+
+/* =================================================================
+   INIT
+================================================================== */
+(function init(){
+  load();
+  initMeta();
+  buildWheel();
+  buildLegend();
+  buildFields();
+  refreshWheel();
+  // Size every textarea to its content once the layout has settled.
+  requestAnimationFrame(autoGrowAll);
+  window.addEventListener('load', autoGrowAll);
+
+  document.getElementById('btn-html').addEventListener('click', downloadHtml);
+  document.getElementById('btn-docx').addEventListener('click', downloadDocx);
+  document.getElementById('btn-print').addEventListener('click', () => {
+    autoGrowAll();
+    syncPrintMirrors();
+    window.print();
+  });
+  document.getElementById('btn-reset').addEventListener('click', reset);
+
+  // Browser print (Cmd/Ctrl+P) — keep the print mirrors in sync.
+  window.addEventListener('beforeprint', () => { autoGrowAll(); syncPrintMirrors(); });
+})();
+</script>
+</body>
+</html>
