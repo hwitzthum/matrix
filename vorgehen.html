@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vorgehen — Rautaki Hands-On</title>
+<style>
+  :root{
+    --gold:#F5A623; --gold-light:#FFD07A; --gold-dim:rgba(245,166,35,0.15);
+    --gold-glow:rgba(245,166,35,0.08); --gold-deep:#B87400;
+    --obsidian:#0A0A0A; --ink:#1C1C1C; --charcoal:#111111; --charcoal-hover:#161616;
+    --cream:#F4F2EE; --white:#FAFAFA; --warm-grey:#E8E5DF; --mid-grey:#9A9590;
+    --error:#C53030;
+    --serif:Georgia,"Times New Roman",serif;
+    --ui:"DM Sans",system-ui,-apple-system,sans-serif;
+    --ease-out:cubic-bezier(0.16,1,0.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--ui);font-weight:300;background:var(--obsidian);
+    color:var(--white);min-height:100vh;overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Grain */
+  .grain::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;background:rgba(10,10,10,0.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .logo{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-0.01em;color:var(--white);text-decoration:none;line-height:1}
+  .logo .g{color:var(--gold)}
+  .topbar .tagline{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.22em;color:var(--mid-grey)}
+
+  /* ===== Progress ===== */
+  .progress-wrap{position:fixed;top:64px;left:0;right:0;z-index:19;background:var(--obsidian)}
+  .progress-track{height:3px;background:rgba(255,255,255,0.05);width:100%}
+  .progress-bar{height:100%;width:0;background:linear-gradient(to right,var(--gold),var(--gold-light));transition:width 0.4s var(--ease-out)}
+  .step-dots{display:flex;justify-content:center;gap:8px;padding:16px 16px 8px}
+  .dot{width:8px;height:8px;background:rgba(255,255,255,0.14);cursor:pointer;transition:background 0.2s,transform 0.2s}
+  .dot:hover{background:rgba(255,255,255,0.4)}
+  .dot.active{background:var(--gold);transform:scale(1.25)}
+  .dot.done{background:rgba(245,166,35,0.45)}
+
+  /* ===== Stage ===== */
+  .stage{max-width:1080px;margin:0 auto;padding:168px 24px 140px;position:relative;z-index:2}
+  .slide{display:none;animation:fadeUp 0.6s var(--ease-out)}
+  .slide.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+  .seclabel{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+  .seclabel .line{width:28px;height:1px;background:rgba(255,255,255,0.18)}
+  .seclabel .txt{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.22em;color:rgba(255,255,255,0.18)}
+
+  .step-num{font-family:var(--serif);font-size:64px;line-height:1;letter-spacing:-0.03em;color:rgba(255,255,255,0.06);margin-bottom:-8px}
+  h1.title{font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.15;letter-spacing:-0.03em;color:var(--white);margin-bottom:24px;max-width:820px}
+  h1.title em{font-style:italic;color:var(--gold)}
+  .lead{font-family:var(--serif);font-size:18px;line-height:1.75;color:rgba(255,255,255,0.7);max-width:720px;margin-bottom:36px}
+  p.body{font-size:15px;line-height:1.75;color:rgba(255,255,255,0.55);max-width:720px;margin-bottom:20px}
+
+  .gold-rule{border:none;height:3px;background:linear-gradient(to right,var(--gold),transparent);margin:36px 0}
+
+  /* Code blocks */
+  .code{
+    position:relative;background:var(--charcoal);border-left:3px solid var(--gold);
+    padding:24px 56px 24px 24px;margin:16px 0;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.85;
+    color:var(--cream);white-space:pre-wrap;word-break:break-word;
+  }
+  .code .cmt{color:var(--mid-grey)}
+  .copy-btn{
+    position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);
+    font-family:var(--ui);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;
+    padding:8px 12px;cursor:pointer;transition:all 0.2s;
+  }
+  .copy-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .copy-btn.copied{background:var(--gold);color:var(--obsidian);border-color:var(--gold)}
+
+  /* Bilingual columns */
+  .bilingual{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:24px 0;background:rgba(255,255,255,0.05)}
+  .lang-col{background:var(--charcoal);padding:32px 32px}
+  .lang-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .lang-tag{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold-light)}
+  .lang-head .hr{flex:1;height:1px;background:rgba(255,255,255,0.08)}
+  .lang-copy{
+    flex:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.6);font-family:var(--ui);font-size:11px;font-weight:500;
+    text-transform:uppercase;letter-spacing:0.18em;padding:8px 12px;cursor:pointer;transition:all 0.2s;
+  }
+  .lang-copy:hover{border-color:var(--gold);color:var(--gold)}
+  .lang-copy.copied{background:var(--gold);color:var(--obsidian);border-color:var(--gold)}
+  .lang-col h3{font-family:var(--serif);font-weight:400;font-size:18px;letter-spacing:-0.01em;color:var(--white);margin:16px 0 8px}
+  .lang-col h3:first-of-type{margin-top:0}
+  .lang-col ul{list-style:none;margin:0 0 8px}
+  .lang-col li{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.45);padding-left:16px;position:relative;margin-bottom:8px}
+  .lang-col li::before{content:"–";position:absolute;left:0;color:var(--gold)}
+  .lang-col p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.45);margin-bottom:12px}
+  .lang-col code{background:rgba(255,255,255,0.07);padding:2px 6px;font-family:"SF Mono",Menlo,monospace;font-size:13px;color:var(--gold-light)}
+  .lang-col .warn{color:var(--gold-light)}
+
+  .keyhint{display:inline-flex;align-items:center;gap:8px;margin:12px 0}
+  .kbd{background:var(--charcoal);border:1px solid rgba(255,255,255,0.15);border-bottom-width:2px;padding:8px 12px;font-family:var(--ui);font-size:13px;font-weight:500;color:var(--white)}
+  .kbd-plus{color:var(--mid-grey);font-size:15px}
+
+  .field{background:var(--charcoal);border-left:3px solid var(--gold);padding:16px 24px;margin:16px 0;font-family:"SF Mono",Menlo,monospace;font-size:15px;color:var(--cream)}
+  .field .ph{color:var(--mid-grey)}
+
+  a.link{color:var(--gold-light);text-decoration:none;border-bottom:1px solid rgba(255,208,122,0.4);transition:border-color 0.2s}
+  a.link:hover{border-color:var(--gold-light)}
+
+  .note{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.45);max-width:720px;margin-top:8px}
+
+  /* ===== Nav controls ===== */
+  .controls{
+    position:fixed;bottom:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:16px 24px;background:rgba(10,10,10,0.92);backdrop-filter:blur(6px);
+    border-top:1px solid rgba(255,255,255,0.05);
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:12px;padding:16px 24px;
+    font-family:var(--ui);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.20em;
+    border:none;cursor:pointer;transition:all 0.2s;background:none;
+  }
+  .btn-gold{background:var(--gold);color:var(--obsidian)}
+  .btn-gold:hover{background:var(--gold-light)}
+  .btn-ghost{border:1px solid rgba(255,255,255,0.2);color:var(--white)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+  .btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
+  .btn:active{transform:scale(0.98)}
+  .counter{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;color:var(--mid-grey)}
+  .counter b{color:var(--white);font-weight:500}
+
+  /* Focus */
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  :focus:not(:focus-visible){outline:none}
+
+  @media(max-width:1024px){
+    .bilingual{grid-template-columns:1fr}
+  }
+  @media(max-width:768px){
+    .stage{padding:152px 16px 128px}
+    h1.title{font-size:36px}
+    .step-num{font-size:48px}
+    .topbar .tagline{display:none}
+    .btn{padding:12px 16px;font-size:11px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body class="grain">
+
+  <header class="topbar">
+    <a href="#" class="logo">R<span>aut</span><span class="g">a</span>k<span class="g">i</span></a>
+    <span class="tagline">Strategy · Advisory · Growth</span>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="step-dots" id="dots"></div>
+  </div>
+
+  <main class="stage" id="stage">
+
+    <!-- ===== Slide 0: Intro ===== -->
+    <section class="slide active">
+      <div class="seclabel"><span class="line"></span><span class="txt">Hands-On · Tutorial</span></div>
+      <div class="step-num">00</div>
+      <h1 class="title">Vom Setup zum <em>fertigen</em> Plan</h1>
+      <p class="lead">Ein achtstufiges Vorgehen, um mit Claude Code eine schlanke KI-App zur Projektplanung aufzubauen — von der Projekteinrichtung bis zum API-Schlüssel.</p>
+      <p class="body">Blättern Sie sich Schritt für Schritt durch das Vorgehen. Wo Texte zweisprachig vorliegen, stehen die englische und die deutsche Fassung nebeneinander zum direkten Vergleich. Code-Befehle lassen sich per Klick kopieren.</p>
+      <hr class="gold-rule">
+      <p class="note">Tipp: Navigieren Sie mit den Pfeiltasten ← → oder den Buttons unten.</p>
+    </section>
+
+    <!-- ===== Slide 1: Schritt 1 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 1 von 8</span></div>
+      <div class="step-num">01</div>
+      <h1 class="title">Einrichten eines <em>Next.js</em>-Projekts</h1>
+      <p class="lead">Erstelle ein Next.js-Projekt. Nutze den <code style="font-family:var(--serif);font-style:italic;color:var(--gold)">npx</code>-Befehl dafür.</p>
+      <div class="code" data-copy="npx create-next-app@latest"><span class="cmt"># Projekt mit npx aufsetzen</span>
+npx create-next-app@latest</div>
+      <p class="note">Folge dem interaktiven Setup-Assistenten (TypeScript, Tailwind, App Router empfohlen).</p>
+    </section>
+
+    <!-- ===== Slide 2: Schritt 2 — bilingual ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 2 von 8</span></div>
+      <div class="step-num">02</div>
+      <h1 class="title">CLAUDE.md / <em>AGENTS.md</em></h1>
+      <p class="body">Lege die zentralen Regeln für den Coding-Agenten fest. Englische und deutsche Fassung im Vergleich:</p>
+      <div class="bilingual">
+        <div class="lang-col">
+          <div class="lang-head"><span class="lang-tag">English</span><span class="hr"></span></div>
+          <h3># CRITICAL RULES — MUST FOLLOW</h3>
+          <h3>## RESPONSES</h3>
+          <ul><li>Keep responses concise and to the point — unless the user asks otherwise</li></ul>
+          <h3>## PLANNING MODE</h3>
+          <ul>
+            <li>Always ask clarifying questions</li>
+            <li>Never assume design, tech stack or features</li>
+            <li>Use deep-dive sub-agents to assist with research</li>
+            <li>Use deep-dive sub-agents to review the different aspects of your plan before presenting to the user</li>
+          </ul>
+          <h3>## CHANGE / EDIT MODE</h3>
+          <ul>
+            <li>Never implement features yourself when possible — use sub-agents!</li>
+            <li>Identify changes from the plan that can be implemented in parallel, and use sub-agents to implement the features efficiently</li>
+            <li>When using sub-agents to implement features, act as a coordinator only</li>
+            <li>Use the best model for the task — premium models for complex tasks (like coding) and mid-tier models for simpler tasks, like documentation</li>
+            <li>After completing features (large or small), always run commands like lint, type check and next build to check code quality</li>
+          </ul>
+          <h3>## DATABASE SCHEMA CHANGES</h3>
+          <ul>
+            <li>Whenever you make changes to the database schema, ALWAYS run the <code>drizzle generate</code> and <code>migrate</code> commands</li>
+            <li class="warn">NEVER run <code>drizzle push</code>!</li>
+          </ul>
+          <h3>## TESTING</h3>
+          <ul>
+            <li>Use any testing tools, libraries available to the project for testing your changes</li>
+            <li>Never assume your changes simply work, always test!</li>
+            <li>If the project does not have any testing tools, scripts, MCP tools, skills, etc. available for testing, ask the user whether testing should be skipped.</li>
+          </ul>
+          <h3>## UI DESIGN</h3>
+          <ul>
+            <li>Always follow the UI design system when creating or reviewing components or pages.</li>
+            <li>Design System: <code>@DESIGN.md</code></li>
+          </ul>
+        </div>
+        <div class="lang-col">
+          <div class="lang-head"><span class="lang-tag">Deutsch</span><span class="hr"></span></div>
+          <h3># WICHTIGE REGELN – UNBEDINGT EINHALTEN</h3>
+          <h3>## ANTWORTEN</h3>
+          <ul><li>Halte die Antworten prägnant und auf den Punkt gebracht – es sei denn, der Benutzer wünscht etwas anderes</li></ul>
+          <h3>## PLANUNGSMODUS</h3>
+          <ul>
+            <li>Stelle immer klärende Fragen</li>
+            <li>Gehe niemals von bestimmten Designs, Tech-Stacks oder Funktionen aus</li>
+            <li>Setze Deep-Dive-Subagenten ein, um die Recherche zu unterstützen</li>
+            <li>Setze Deep-Dive-Subagenten ein, um die verschiedenen Aspekte deines Plans zu überprüfen, bevor du ihn dem Benutzer präsentierst</li>
+          </ul>
+          <h3>## ÄNDERUNGS-/BEARBEITUNGSMODUS</h3>
+          <ul>
+            <li>Implementiere Funktionen nach Möglichkeit niemals selbst – setze Subagenten ein!</li>
+            <li>Identifiziere Änderungen am Plan, die parallel umgesetzt werden können, und setze Subagenten ein, um die Funktionen effizient zu implementieren</li>
+            <li>Wenn du Subagenten zur Implementierung von Funktionen einsetzt, fungiere ausschliesslich als Koordinator</li>
+            <li>Verwende das für die Aufgabe am besten geeignete Modell – Premium-Modelle für komplexe Aufgaben (wie das Programmieren) und Modelle der mittleren Leistungsklasse für einfachere Aufgaben, wie die Dokumentation</li>
+            <li>Führe nach Fertigstellung von Funktionen (ob gross oder klein) immer Befehle wie «lint», «type check» und «next build» aus, um die Codequalität zu überprüfen</li>
+          </ul>
+          <h3>## ÄNDERUNGEN AM DATENBANKSCHEMA</h3>
+          <ul>
+            <li>Führe bei jeder Änderung am Datenbank-Schema IMMER die Befehle «drizzle generate» und «migrate» aus</li>
+            <li class="warn">Führen Sie NIEMALS «drizzle push» aus!</li>
+          </ul>
+          <h3>## TESTEN</h3>
+          <ul>
+            <li>Nutze alle im Projekt verfügbaren Testtools und Bibliotheken, um deine Änderungen zu testen</li>
+            <li>Gehe niemals davon aus, dass deine Änderungen einfach so funktionieren – teste immer!</li>
+            <li>Falls im Projekt keine Testtools, Skripte, MCP-Tools, Kenntnisse usw. zum Testen verfügbar sind, frage den Benutzer, ob das Testen übersprungen werden soll.</li>
+          </ul>
+          <h3>## UI-DESIGN</h3>
+          <ul>
+            <li>Halte dich beim Erstellen oder Überprüfen von Komponenten oder Seiten stets an das UI-Designsystem.</li>
+            <li>Design System: <code>@DESIGN.md</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Slide 3: Schritt 3 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 3 von 8</span></div>
+      <div class="step-num">03</div>
+      <h1 class="title">Skills <em>installieren</em></h1>
+      <p class="lead">Gehe zu <a class="link" href="https://skills.sh" target="_blank" rel="noopener">skills.sh</a> und speichere die folgenden Skills.</p>
+      <div class="code" data-copy="npx skills add https://github.com/anthropics/skills --skill frontend-design">npx skills add https://github.com/anthropics/skills <span class="cmt">--skill frontend-design</span></div>
+      <div class="code" data-copy="npx skills add https://github.com/vercel/ai --skill ai-sdk">npx skills add https://github.com/vercel/ai <span class="cmt">--skill ai-sdk</span></div>
+      <div class="code" data-copy="npx skills add https://github.com/vercel/next.js --skill next-dev-loop">npx skills add https://github.com/vercel/next.js <span class="cmt">--skill next-dev-loop</span></div>
+      <div class="code" data-copy="npx skills add https://github.com/shadcn/ui --skill shadcn">npx skills add https://github.com/shadcn/ui <span class="cmt">--skill shadcn</span></div>
+    </section>
+
+    <!-- ===== Slide 4: Schritt 4 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 4 von 8</span></div>
+      <div class="step-num">04</div>
+      <h1 class="title">MCP <em>Server</em></h1>
+      <p class="lead">Füge den Playwright-MCP-Server hinzu, damit der Agent Tests im Browser ausführen kann.</p>
+      <p class="body"><a class="link" href="https://github.com/microsoft/playwright-mcp" target="_blank" rel="noopener">github.com/microsoft/playwright-mcp</a></p>
+      <div class="code" data-copy="claude mcp add playwright npx @playwright/mcp@latest">claude mcp add playwright npx @playwright/mcp@latest</div>
+    </section>
+
+    <!-- ===== Slide 5: Schritt 5 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 5 von 8</span></div>
+      <div class="step-num">05</div>
+      <h1 class="title">Plan-<em>Modus</em></h1>
+      <p class="lead">Aktiviere den Plan-Modus von Claude Code mit der Tastenkombination:</p>
+      <div class="keyhint">
+        <span class="kbd">Shift</span><span class="kbd-plus">+</span><span class="kbd">Tab</span>
+      </div>
+      <p class="body">Im Plan-Modus arbeitet Claude Code zuerst eine Strategie aus und stellt klärende Fragen, bevor Code geschrieben wird.</p>
+    </section>
+
+    <!-- ===== Slide 6: Schritt 6 — bilingual ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 6 von 8</span></div>
+      <div class="step-num">06</div>
+      <h1 class="title">PROMPT.md — der <em>Projektauftrag</em></h1>
+      <p class="body">Beschreibe die zu bauende App. Englische und deutsche Fassung im Vergleich:</p>
+      <div class="bilingual">
+        <div class="lang-col">
+          <div class="lang-head"><span class="lang-tag">English</span><span class="hr"></span></div>
+          <p>We're building a lightweight AI Project Planner app for this tutorial. The app should let a user enter a rough app idea, then generate an editable project brief with:</p>
+          <ul>
+            <li>app summary</li>
+            <li>target users</li>
+            <li>core features</li>
+            <li>recommended tech stack</li>
+            <li>pages/routes</li>
+            <li>possible data model</li>
+            <li>build phases</li>
+            <li>risks/edge cases</li>
+            <li>final copyable starter prompt for a coding agent</li>
+          </ul>
+          <p>Keep the scope small: no auth, no database, no payments. Use Next.js, Tailwind, and shadcn/ui. For now, plan the architecture, components, routes, data flow, and implementation steps. We will be using the AI SDK with OpenRouter for inference.</p>
+          <p>For the data model, it would be cool if you could visualize the relationship between the different entities as well (perhaps reactflow or something).</p>
+        </div>
+        <div class="lang-col">
+          <div class="lang-head"><span class="lang-tag">Deutsch</span><span class="hr"></span></div>
+          <p>Für dieses Tutorial entwickeln wir eine schlanke KI-App zur Projektplanung. Die App soll es dem Benutzer ermöglichen, eine grobe App-Idee einzugeben, und anschliessend ein bearbeitbares Projektdossier erstellen, das Folgendes enthält:</p>
+          <ul>
+            <li>Zusammenfassung der App</li>
+            <li>Zielgruppe</li>
+            <li>Kernfunktionen</li>
+            <li>Empfohlener Tech-Stack</li>
+            <li>Seiten/Routen</li>
+            <li>Mögliches Datenmodell</li>
+            <li>Entwicklungsphasen</li>
+            <li>Risiken/Grenzfälle</li>
+            <li>Abschliessende, kopierbare Startanweisung für einen Programmieragenten</li>
+          </ul>
+          <p>Halte den Umfang klein: keine Authentifizierung, keine Datenbank, keine Zahlungen. Verwende Next.js, Tailwind und shadcn/ui. Plane vorerst die Architektur, die Komponenten, die Routen, den Datenfluss und die Implementierungsschritte. Wir werden das AI-SDK mit OpenRouter für die Inferenz nutzen.</p>
+          <p>Was das Datenmodell betrifft, wäre es cool, wenn du auch die Beziehungen zwischen den verschiedenen Entitäten visualisieren könntest (vielleicht mit ReactFlow oder etwas Ähnlichem).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Slide 7: Schritt 7 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 7 von 8</span></div>
+      <div class="step-num">07</div>
+      <h1 class="title">Das <em>Interview</em></h1>
+      <p class="lead">„Interview mich solange, bis dass du &gt; 95 % sicher bist, dass du verstanden hast, was ich möchte."</p>
+      <p class="body">Lass Claude Code so lange nachfragen, bis die Anforderungen klar genug sind, um mit der Planung zu starten.</p>
+    </section>
+
+    <!-- ===== Slide 8: Schritt 8 ===== -->
+    <section class="slide">
+      <div class="seclabel"><span class="line"></span><span class="txt">Schritt 8 von 8</span></div>
+      <div class="step-num">08</div>
+      <h1 class="title">API-<em>Schlüssel</em></h1>
+      <p class="lead">Erstelle einen API-Schlüssel auf <a class="link" href="https://openrouter.ai/" target="_blank" rel="noopener">openrouter.ai</a> und hinterlege ihn in deiner Umgebungsdatei.</p>
+      <div class="field">OPENROUTER_API_KEY=<span class="ph">…</span></div>
+      <hr class="gold-rule">
+      <p class="note">Damit ist das Vorgehen abgeschlossen — viel Erfolg beim Bauen.</p>
+    </section>
+
+  </main>
+
+  <nav class="controls">
+    <button class="btn btn-ghost" id="prevBtn">← Zurück</button>
+    <span class="counter">Schritt <b id="curNum">1</b> / <span id="totNum">9</span></span>
+    <button class="btn btn-gold" id="nextBtn">Weiter →</button>
+  </nav>
+
+<script>
+(function(){
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total=slides.length;
+  var cur=0;
+  var bar=document.getElementById('progressBar');
+  var dotsWrap=document.getElementById('dots');
+  var prevBtn=document.getElementById('prevBtn');
+  var nextBtn=document.getElementById('nextBtn');
+  var curNum=document.getElementById('curNum');
+  document.getElementById('totNum').textContent=total;
+
+  // build dots
+  slides.forEach(function(_,i){
+    var d=document.createElement('span');
+    d.className='dot';d.setAttribute('role','button');d.setAttribute('aria-label','Schritt '+(i+1));
+    d.addEventListener('click',function(){go(i)});
+    dotsWrap.appendChild(d);
+  });
+  var dots=Array.prototype.slice.call(dotsWrap.children);
+
+  function render(){
+    slides.forEach(function(s,i){s.classList.toggle('active',i===cur)});
+    dots.forEach(function(d,i){
+      d.classList.toggle('active',i===cur);
+      d.classList.toggle('done',i<cur);
+    });
+    bar.style.width=((cur)/(total-1)*100)+'%';
+    curNum.textContent=cur+1;
+    prevBtn.disabled=(cur===0);
+    nextBtn.textContent=(cur===total-1)?'Fertig ✓':'Weiter →';
+    nextBtn.disabled=false;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function go(i){if(i<0||i>=total)return;cur=i;render();}
+
+  prevBtn.addEventListener('click',function(){go(cur-1)});
+  nextBtn.addEventListener('click',function(){if(cur<total-1)go(cur+1)});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight')go(cur+1);
+    if(e.key==='ArrowLeft')go(cur-1);
+  });
+
+  // copy buttons
+  document.querySelectorAll('.code[data-copy]').forEach(function(block){
+    var btn=document.createElement('button');
+    btn.className='copy-btn';btn.type='button';btn.textContent='Kopieren';
+    btn.addEventListener('click',function(){
+      var txt=block.getAttribute('data-copy');
+      navigator.clipboard.writeText(txt).then(function(){
+        btn.textContent='Kopiert ✓';btn.classList.add('copied');
+        setTimeout(function(){btn.textContent='Kopieren';btn.classList.remove('copied')},1600);
+      });
+    });
+    block.appendChild(btn);
+  });
+
+  // copy buttons for bilingual language columns
+  document.querySelectorAll('.lang-col').forEach(function(col){
+    var head=col.querySelector('.lang-head');
+    var btn=document.createElement('button');
+    btn.className='lang-copy';btn.type='button';btn.textContent='Kopieren';
+    btn.addEventListener('click',function(){
+      var clone=col.cloneNode(true);
+      var h=clone.querySelector('.lang-head');if(h)h.remove();
+      var txt=(clone.innerText||clone.textContent).replace(/\n{3,}/g,'\n\n').trim();
+      navigator.clipboard.writeText(txt).then(function(){
+        btn.textContent='Kopiert ✓';btn.classList.add('copied');
+        setTimeout(function(){btn.textContent='Kopieren';btn.classList.remove('copied')},1600);
+      });
+    });
+    head.appendChild(btn);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
